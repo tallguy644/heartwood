@@ -147,7 +147,7 @@
   function showApp() {
     $('#connect').hidden = true;
     $('#app').hidden = false;
-    $('#view-live').href = 'https://' + cfg.owner.toLowerCase() + '.github.io/' + cfg.repo + '/';
+    $('#view-live').href = 'https://tilleywoodworks.com/';
     $('#conn-info').textContent = cfg.owner + '/' + cfg.repo + ' (' + cfg.branch + ')';
     renderAll();
   }

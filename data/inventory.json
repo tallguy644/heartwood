@@ -1,0 +1,39 @@
+{
+  "settings": {
+    "storeName": "Heartwood",
+    "tagline": "Handmade live-edge woodworking",
+    "heroEyebrow": "Live-edge · handcrafted · one of a kind",
+    "heroHeading": "Wood with a story, built to hold yours.",
+    "heroText": "Live-edge shelves, boards and furniture cut from real slabs, each one keeping the natural edge of the tree it came from.",
+    "heroImage": "images/live-edge-shelves.jpg",
+    "aboutHeading": "Made the slow way",
+    "aboutText": "Every piece is cut, sanded and finished by hand in our own shop. We keep the natural live edge on each board, so no two pieces look alike.",
+    "contactEmail": "",
+    "contactPhone": "",
+    "customOrdersText": "Shelves for an awkward wall, a table sized to your room, a board with your family name. Tell us what you're picturing and we'll get back to you with a quote."
+  },
+  "categories": [
+    { "id": "shelves", "name": "Shelves" },
+    { "id": "boards", "name": "Boards" },
+    { "id": "tables", "name": "Tables" },
+    { "id": "mantels", "name": "Mantels" }
+  ],
+  "items": [
+    {
+      "id": "live-edge-floating-shelves",
+      "name": "Live-Edge Floating Shelves",
+      "categoryId": "shelves",
+      "status": "available",
+      "price": null,
+      "quantity": 1,
+      "featured": true,
+      "oneOfAKind": true,
+      "wood": "",
+      "dimensions": "",
+      "finish": "",
+      "description": "A set of three thick slabs with the bark edge kept and darkened, faces sanded smooth to show the grain. They mount on hidden brackets, so each shelf looks like it grows out of the wall.",
+      "images": ["images/live-edge-shelves.jpg"],
+      "createdAt": "2026-11-01"
+    }
+  ]
+}

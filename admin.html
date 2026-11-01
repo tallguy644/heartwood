@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Heartwood Inventory</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2334261b'/%3E%3Cpath d='M6 12h20M6 20h20' stroke='%23f1e3cf' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Young+Serif&family=Alegreya+Sans:wght@400;500;700&family=Alegreya+Sans+SC:wght@500;700&display=swap">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/admin.css">
+</head>
+<body class="admin">
+
+<!-- Connect screen -->
+<section id="connect" class="connect" hidden>
+  <div class="connect__card">
+    <p class="label">Shop admin</p>
+    <h1>Connect your inventory</h1>
+    <p class="muted">Your inventory lives in your GitHub repo. Paste a GitHub access token once on this device and the Publish button can update your live site.</p>
+    <form id="connect-form" class="stack">
+      <div class="row">
+        <div class="field"><label for="c-owner">GitHub user</label><input id="c-owner" type="text" value="tallguy644" autocapitalize="off" spellcheck="false" required></div>
+        <div class="field"><label for="c-repo">Repository</label><input id="c-repo" type="text" value="heartwood" autocapitalize="off" spellcheck="false" required></div>
+      </div>
+      <div class="field"><label for="c-branch">Site branch</label><input id="c-branch" type="text" value="gh-pages" autocapitalize="off" spellcheck="false" required></div>
+      <div class="field">
+        <label for="c-token">Access token</label>
+        <input id="c-token" type="password" autocomplete="off" spellcheck="false" placeholder="github_pat_…" required>
+      </div>
+      <details class="help">
+        <summary>How to make a token (2 minutes)</summary>
+        <ol>
+          <li>On GitHub, open <strong>Settings → Developer settings → Personal access tokens → Fine-grained tokens</strong> and tap <strong>Generate new token</strong>.</li>
+          <li>Name it "Heartwood admin". Set an expiration you're comfortable with.</li>
+          <li>Under <strong>Repository access</strong>, choose <strong>Only select repositories</strong> → <strong>heartwood</strong>.</li>
+          <li>Under <strong>Permissions → Repository permissions</strong>, set <strong>Contents</strong> to <strong>Read and write</strong>.</li>
+          <li>Generate, copy the token and paste it here.</li>
+        </ol>
+        <p>The token is saved only in this browser on this device. It can only change the heartwood repo, and you can revoke it on GitHub any time.</p>
+      </details>
+      <button class="btn" type="submit" id="connect-btn">Connect</button>
+      <p class="form-note" id="connect-msg" role="status"></p>
+    </form>
+  </div>
+</section>
+
+<!-- App -->
+<div id="app" hidden>
+  <header class="topbar">
+    <div class="wrap topbar__inner">
+      <div class="topbar__title">
+        <span class="label">Inventory</span>
+        <strong id="tb-store">Heartwood</strong>
+      </div>
+      <a class="topbar__link" id="view-live" href="./" target="_blank" rel="noopener">View live site ↗</a>
+      <button class="btn" id="publish-btn" type="button" disabled>Publish</button>
+    </div>
+    <div class="wrap">
+      <nav class="tabs" role="tablist">
+        <button role="tab" type="button" class="tab" data-tab="pieces" aria-selected="true">Pieces</button>
+        <button role="tab" type="button" class="tab" data-tab="categories" aria-selected="false">Categories</button>
+        <button role="tab" type="button" class="tab" data-tab="settings" aria-selected="false">Store</button>
+      </nav>
+    </div>
+  </header>
+
+  <div class="statusbar" id="statusbar" role="status" hidden></div>
+
+  <main class="wrap admin-main">
+    <!-- Pieces -->
+    <section data-panel="pieces">
+      <div class="toolbar">
+        <div class="field toolbar__search"><label for="q" class="visually-hidden">Search pieces</label><input id="q" type="search" placeholder="Search pieces"></div>
+        <div class="field"><label for="fstatus" class="visually-hidden">Filter by status</label>
+          <select id="fstatus">
+            <option value="">All statuses</option>
+            <option value="available">Available</option>
+            <option value="made-to-order">Made to order</option>
+            <option value="sold">Sold</option>
+            <option value="hidden">Hidden (draft)</option>
+          </select>
+        </div>
+        <button class="btn" type="button" id="add-piece">+ Add piece</button>
+      </div>
+      <div class="summary" id="summary"></div>
+      <ul class="plist" id="plist"></ul>
+    </section>
+
+    <!-- Categories -->
+    <section data-panel="categories" hidden>
+      <div class="panel-head">
+        <h2>Categories</h2>
+        <p class="muted">These are the filter buttons on your shop page. Rename them to anything you like.</p>
+      </div>
+      <ul class="clist" id="clist"></ul>
+      <form id="cat-form" class="cat-add">
+        <div class="field"><label for="new-cat">New category</label><input id="new-cat" type="text" placeholder="e.g. Charcuterie boards" required></div>
+        <button class="btn btn--line" type="submit">Add category</button>
+      </form>
+    </section>
+
+    <!-- Store settings -->
+    <section data-panel="settings" hidden>
+      <div class="panel-head">
+        <h2>Store details</h2>
+        <p class="muted">Your shop's name, home page text and how buyers reach you.</p>
+      </div>
+      <form id="settings-form" class="stack settings">
+        <fieldset>
+          <legend>Name</legend>
+          <div class="row">
+            <div class="field"><label for="s-storeName">Store name</label><input id="s-storeName" data-setting="storeName" type="text" required></div>
+            <div class="field"><label for="s-tagline">Tagline</label><input id="s-tagline" data-setting="tagline" type="text"></div>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>Contact (for "Ask about this piece")</legend>
+          <div class="row">
+            <div class="field"><label for="s-contactEmail">Email</label><input id="s-contactEmail" data-setting="contactEmail" type="email" placeholder="you@example.com"></div>
+            <div class="field"><label for="s-contactPhone">Phone (optional)</label><input id="s-contactPhone" data-setting="contactPhone" type="tel"></div>
+          </div>
+          <p class="form-note">Shown on your public site. Until you add an email, the "Ask" buttons point to the custom-order section.</p>
+        </fieldset>
+        <fieldset>
+          <legend>Home page</legend>
+          <div class="field"><label for="s-heroEyebrow">Small text above headline</label><input id="s-heroEyebrow" data-setting="heroEyebrow" type="text"></div>
+          <div class="field"><label for="s-heroHeading">Headline</label><input id="s-heroHeading" data-setting="heroHeading" type="text"></div>
+          <div class="field"><label for="s-heroText">Intro</label><textarea id="s-heroText" data-setting="heroText" rows="3"></textarea></div>
+          <div class="field">
+            <span class="field__label">Main photo</span>
+            <div class="hero-pick">
+              <img id="hero-preview" alt="Current main photo">
+              <label class="btn btn--line" for="s-heroFile">Replace photo</label>
+              <input id="s-heroFile" type="file" accept="image/*" class="visually-hidden">
+            </div>
+          </div>
+          <div class="field"><label for="s-aboutHeading">About heading</label><input id="s-aboutHeading" data-setting="aboutHeading" type="text"></div>
+          <div class="field"><label for="s-aboutText">About text</label><textarea id="s-aboutText" data-setting="aboutText" rows="4"></textarea></div>
+          <div class="field"><label for="s-customOrdersText">Custom orders text</label><textarea id="s-customOrdersText" data-setting="customOrdersText" rows="3"></textarea></div>
+        </fieldset>
+        <fieldset>
+          <legend>This device</legend>
+          <p class="form-note">Connected to <span id="conn-info"></span>.</p>
+          <button type="button" class="btn btn--line" id="disconnect">Disconnect this device</button>
+        </fieldset>
+      </form>
+    </section>
+  </main>
+</div>
+
+<!-- Piece editor -->
+<dialog class="editor" id="editor" aria-labelledby="ed-title">
+  <form id="piece-form" method="dialog" class="editor__form">
+    <header class="editor__head">
+      <h2 id="ed-title">Edit piece</h2>
+      <button type="button" class="editor__x" aria-label="Close without saving" data-cancel>&times;</button>
+    </header>
+    <div class="editor__body stack">
+      <div class="field"><label for="p-name">Piece name</label><input id="p-name" type="text" required placeholder="e.g. The Mesa Shelf Set"></div>
+      <div class="row">
+        <div class="field"><label for="p-cat">Category</label><select id="p-cat"></select></div>
+        <div class="field"><label for="p-status">Status</label>
+          <select id="p-status">
+            <option value="available">Available</option>
+            <option value="made-to-order">Made to order</option>
+            <option value="sold">Sold</option>
+            <option value="hidden">Hidden (draft, not on site)</option>
+          </select>
+        </div>
+      </div>
+      <div class="row">
+        <div class="field"><label for="p-price">Price (USD)</label><input id="p-price" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Leave blank for “Ask for price”"></div>
+        <div class="field"><label for="p-qty">Quantity on hand</label><input id="p-qty" type="number" min="0" step="1" inputmode="numeric"></div>
+      </div>
+      <div class="checks">
+        <label><input type="checkbox" id="p-featured"> Feature first on the shop page</label>
+        <label><input type="checkbox" id="p-ooak"> One of a kind</label>
+      </div>
+      <div class="field">
+        <span class="field__label">Photos <span class="muted">(first photo is the cover)</span></span>
+        <ul class="photos" id="p-photos"></ul>
+        <label class="btn btn--line photos__add" for="p-files">+ Add photos</label>
+        <input id="p-files" type="file" accept="image/*" multiple class="visually-hidden">
+      </div>
+      <div class="row">
+        <div class="field"><label for="p-wood">Wood</label><input id="p-wood" type="text" placeholder="e.g. Black walnut"></div>
+        <div class="field"><label for="p-finish">Finish</label><input id="p-finish" type="text" placeholder="e.g. Hardwax oil"></div>
+      </div>
+      <div class="field"><label for="p-dims">Dimensions</label><input id="p-dims" type="text" placeholder='e.g. 36" W × 10" D × 2" thick'></div>
+      <div class="field"><label for="p-desc">Description</label><textarea id="p-desc" rows="5"></textarea></div>
+    </div>
+    <footer class="editor__foot">
+      <button type="button" class="btn btn--danger" id="p-delete">Delete</button>
+      <span class="spacer"></span>
+      <button type="button" class="btn btn--line" data-cancel>Cancel</button>
+      <button type="submit" class="btn">Save piece</button>
+    </footer>
+  </form>
+</dialog>
+
+<script src="assets/admin.js"></script>
+</body>
+</html>

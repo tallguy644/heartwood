@@ -64,7 +64,8 @@ a { color: inherit; }
 /* header */
 header.site { position: sticky; top: 0; z-index: 5; background: var(--bg); border-bottom: 1px solid var(--line); }
 header.site .wrap { display: flex; align-items: center; gap: 1.5rem; min-height: 64px; }
-.logo { font-family: var(--font-display); font-size: 1.45rem; text-decoration: none; margin-right: auto; }
+.logo { font-family: var(--font-display); font-size: 1.45rem; text-decoration: none; margin-right: auto; display: inline-flex; align-items: center; gap: 0.6rem; min-width: 0; }
+.logo__mark { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; flex: none; }
 nav.main { display: flex; gap: 1.5rem; font-weight: 500; }
 nav.main a { text-decoration: none; }
 nav.main a:hover { color: var(--accent); }

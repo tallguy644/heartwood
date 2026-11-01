@@ -14,36 +14,35 @@
 </head>
 <body class="admin">
 
-<!-- Connect screen -->
+<!-- Sign-in screen -->
 <section id="connect" class="connect" hidden>
   <div class="connect__card">
     <p class="label">Shop admin</p>
-    <h1>Connect your inventory</h1>
-    <p class="muted">Your inventory lives in your GitHub repo. Paste a GitHub access token once on this device and the Publish button can update your live site.</p>
-    <form id="connect-form" class="stack">
-      <div class="row">
-        <div class="field"><label for="c-owner">GitHub user</label><input id="c-owner" type="text" value="tallguy644" autocapitalize="off" spellcheck="false" required></div>
-        <div class="field"><label for="c-repo">Repository</label><input id="c-repo" type="text" value="heartwood" autocapitalize="off" spellcheck="false" required></div>
-      </div>
-      <div class="field"><label for="c-branch">Site branch</label><input id="c-branch" type="text" value="gh-pages" autocapitalize="off" spellcheck="false" required></div>
-      <div class="field">
-        <label for="c-token">Access token</label>
-        <input id="c-token" type="password" autocomplete="off" spellcheck="false" placeholder="github_pat_…" required>
-      </div>
-      <details class="help">
-        <summary>How to make a token (2 minutes)</summary>
-        <ol>
-          <li>On GitHub, open <strong>Settings → Developer settings → Personal access tokens → Fine-grained tokens</strong> and tap <strong>Generate new token</strong>.</li>
-          <li>Name it "Tilley Woodworks admin". Set an expiration you're comfortable with.</li>
-          <li>Under <strong>Repository access</strong>, choose <strong>Only select repositories</strong> → <strong>heartwood</strong>.</li>
-          <li>Under <strong>Permissions → Repository permissions</strong>, set <strong>Contents</strong> to <strong>Read and write</strong>.</li>
-          <li>Generate, copy the token and paste it here.</li>
-        </ol>
-        <p>The token is saved only in this browser on this device. It can only change the heartwood repo, and you can revoke it on GitHub any time.</p>
-      </details>
-      <button class="btn" type="submit" id="connect-btn">Connect</button>
-      <p class="form-note" id="connect-msg" role="status"></p>
+
+    <div id="no-backend" hidden>
+      <h1>Almost ready</h1>
+      <p class="muted">The inventory server isn't connected to this site yet. Once it's set up, you and your helpers sign in here with an email and password.</p>
+    </div>
+
+    <form id="setup-form" class="stack" hidden>
+      <h1>Create the owner account</h1>
+      <p class="muted">This happens once. Use the setup code you saved on GitHub. After this you'll sign in with your email and password, and you can add helpers from the Staff tab.</p>
+      <div class="field"><label for="u-code">Setup code</label><input id="u-code" type="password" autocomplete="off" spellcheck="false" required></div>
+      <div class="field"><label for="u-name">Your name</label><input id="u-name" type="text" autocomplete="name"></div>
+      <div class="field"><label for="u-email">Email</label><input id="u-email" type="email" autocomplete="email" required></div>
+      <div class="field"><label for="u-pass">Password <span class="muted">(8+ characters)</span></label><input id="u-pass" type="password" autocomplete="new-password" minlength="8" required></div>
+      <button class="btn" type="submit">Create account</button>
     </form>
+
+    <form id="login-form" class="stack" hidden>
+      <h1>Sign in</h1>
+      <div class="field"><label for="l-email">Email</label><input id="l-email" type="email" autocomplete="username" required></div>
+      <div class="field"><label for="l-pass">Password</label><input id="l-pass" type="password" autocomplete="current-password" required></div>
+      <button class="btn" type="submit">Sign in</button>
+      <p class="form-note">Forgot your password? Ask the shop owner to set a new one for you.</p>
+    </form>
+
+    <p class="form-note" id="connect-msg" role="status"></p>
   </div>
 </section>
 
@@ -63,6 +62,8 @@
         <button role="tab" type="button" class="tab" data-tab="pieces" aria-selected="true">Pieces</button>
         <button role="tab" type="button" class="tab" data-tab="categories" aria-selected="false">Categories</button>
         <button role="tab" type="button" class="tab" data-tab="settings" aria-selected="false">Store</button>
+        <button role="tab" type="button" class="tab" data-tab="staff" aria-selected="false" id="staff-tab" hidden>Staff</button>
+        <button role="tab" type="button" class="tab" data-tab="account" aria-selected="false">Account</button>
       </nav>
     </div>
   </header>
@@ -141,12 +142,50 @@
           <div class="field"><label for="s-aboutText">About text</label><textarea id="s-aboutText" data-setting="aboutText" rows="4"></textarea></div>
           <div class="field"><label for="s-customOrdersText">Custom orders text</label><textarea id="s-customOrdersText" data-setting="customOrdersText" rows="3"></textarea></div>
         </fieldset>
+      </form>
+    </section>
+
+    <!-- Staff (owner only) -->
+    <section data-panel="staff" hidden>
+      <div class="panel-head">
+        <h2>Staff</h2>
+        <p class="muted">People who can sign in here to add pieces, mark things sold and publish. Only you can add or remove them.</p>
+      </div>
+      <ul class="clist" id="ulist"></ul>
+      <form id="user-form" class="stack settings">
         <fieldset>
-          <legend>This device</legend>
-          <p class="form-note">Connected to <span id="conn-info"></span>.</p>
-          <button type="button" class="btn btn--line" id="disconnect">Disconnect this device</button>
+          <legend id="user-form-title">Add a helper</legend>
+          <div class="row">
+            <div class="field"><label for="n-name">Name</label><input id="n-name" type="text" autocomplete="off"></div>
+            <div class="field"><label for="n-email">Email</label><input id="n-email" type="email" autocomplete="off" required></div>
+          </div>
+          <div class="field"><label for="n-pass">Password for them <span class="muted">(8+ characters)</span></label><input id="n-pass" type="text" autocomplete="off" spellcheck="false" minlength="8" required></div>
+          <p class="form-note">Give them this password yourself. To reset someone's password, enter their email again with a new password.</p>
+          <div><button class="btn" type="submit" id="user-submit">Add helper</button></div>
         </fieldset>
       </form>
+    </section>
+
+    <!-- Account -->
+    <section data-panel="account" hidden>
+      <div class="panel-head">
+        <h2>Your account</h2>
+        <p class="muted">Signed in as <strong id="me-email"></strong> <span id="me-role"></span>.</p>
+      </div>
+      <form id="pass-form" class="stack settings">
+        <fieldset>
+          <legend>Change password</legend>
+          <div class="field"><label for="a-cur">Current password</label><input id="a-cur" type="password" autocomplete="current-password" required></div>
+          <div class="field"><label for="a-new">New password <span class="muted">(8+ characters)</span></label><input id="a-new" type="password" autocomplete="new-password" minlength="8" required></div>
+          <div><button class="btn" type="submit">Change password</button></div>
+        </fieldset>
+      </form>
+      <fieldset class="settings" id="import-box" hidden>
+        <legend>Bring over your current pieces</legend>
+        <p class="form-note">Copies the pieces, categories, store details and photos that are on the site today into the new inventory server. Do this once, before making other changes.</p>
+        <div><button type="button" class="btn btn--line" id="import-btn">Import from the site</button></div>
+      </fieldset>
+      <div style="margin-top:1.5rem"><button type="button" class="btn btn--line" id="disconnect">Sign out</button></div>
     </section>
   </main>
 </div>
@@ -201,6 +240,7 @@
   </form>
 </dialog>
 
+<script src="assets/config.js"></script>
 <script src="assets/admin.js"></script>
 </body>
 </html>

@@ -109,3 +109,10 @@ dialog.editor::backdrop { background: rgba(20, 12, 6, 0.6); }
   .citem { grid-template-columns: 1fr auto; }
   .citem__count { grid-column: 1; }
 }
+
+/* staff list */
+.uitem { display: grid; grid-template-columns: 1fr auto auto; gap: 0.75rem; align-items: center; background: var(--card); border: 1px solid var(--line); border-radius: 6px; padding: 0.6rem 0.75rem; }
+.uitem__who { display: grid; min-width: 0; }
+.uitem__who span { color: var(--muted); font-size: 0.9rem; overflow: hidden; text-overflow: ellipsis; }
+#ulist { margin-bottom: 1.5rem; }
+@media (max-width: 560px) { .uitem { grid-template-columns: 1fr auto; } }

@@ -8,8 +8,8 @@
   const slug = (s) => String(s || '').toLowerCase().normalize('NFKD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 48);
   const money = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 2 });
   const STATUS = { 'available': 'Available', 'made-to-order': 'Made to order', 'sold': 'Sold', 'hidden': 'Hidden' };
-  const STORE_KEY = 'heartwood-admin-v1';
-  const INVENTORY_PATH = 'data/inventory.json';
+  const STORE_KEY = 'tilley-admin-v2';
+  const API = String(window.TW_API || '').replace(/\/+$/, '');
 
   const DEFAULT_DATA = {
     settings: { storeName: 'Tilley Woodworks', tagline: '', heroEyebrow: '', heroHeading: '', heroText: '', heroImage: '', aboutHeading: '', aboutText: '', contactEmail: '', contactPhone: '', customOrdersText: '' },
@@ -18,61 +18,52 @@
   };
 
   // ---------- state ----------
-  let cfg = null;              // { owner, repo, branch, token }
+  let session = null;          // { token, user: { email, name, role } }
   let data = null;             // working inventory
   let published = '';          // JSON of last published inventory
-  let publishedRefs = new Set(); // image paths that exist on the site
-  const pending = new Map();   // path -> base64 (new uploads not yet published)
-  const previews = new Map();  // path -> data URL (so new photos show before the site serves them)
+  let version = 0;             // server version the working copy is based on
+  const pending = new Map();   // temp path -> base64 JPEG (new photos not yet uploaded)
+  const previews = new Map();  // temp path -> data URL
   let draft = null;            // piece being edited
   let draftIsNew = false;
   let busy = false;
 
   // ---------- storage ----------
-  function loadCfg() {
+  function loadSession() {
     try { return JSON.parse(localStorage.getItem(STORE_KEY) || 'null'); } catch (e) { return null; }
   }
-  function saveCfg(c) {
-    try { localStorage.setItem(STORE_KEY, JSON.stringify(c)); } catch (e) { /* private mode: stays for this visit */ }
+  function saveSession(s) {
+    try { localStorage.setItem(STORE_KEY, JSON.stringify(s)); } catch (e) { /* private mode: stays for this visit */ }
   }
-  function clearCfg() {
+  function clearSession() {
     try { localStorage.removeItem(STORE_KEY); } catch (e) { /* ignore */ }
   }
 
-  // ---------- GitHub API ----------
-  async function gh(path, opts) {
+  // ---------- backend ----------
+  async function api(path, opts) {
     opts = opts || {};
-    const headers = {
-      'Authorization': 'Bearer ' + cfg.token,
-      'Accept': 'application/vnd.github+json',
-      'X-GitHub-Api-Version': '2022-11-28'
-    };
-    if (opts.body) headers['Content-Type'] = 'application/json';
-    const r = await fetch('https://api.github.com' + path, { method: opts.method || 'GET', headers, body: opts.body ? JSON.stringify(opts.body) : undefined, cache: 'no-store' });
+    const headers = {};
+    if (session && session.token) headers['Authorization'] = 'Bearer ' + session.token;
+    let body = opts.body;
+    if (body && !(body instanceof Blob)) { headers['Content-Type'] = 'application/json'; body = JSON.stringify(body); }
+    if (body instanceof Blob) headers['Content-Type'] = 'image/jpeg';
+    const r = await fetch(API + path, { method: opts.method || 'GET', headers, body, cache: 'no-store' });
+    let out = null;
+    try { out = await r.json(); } catch (e) { /* empty */ }
     if (!r.ok) {
-      let msg = r.statusText;
-      try { msg = (await r.json()).message || msg; } catch (e) { /* ignore */ }
-      const err = new Error(msg);
+      const err = new Error((out && out.error) || r.statusText || 'Request failed');
       err.status = r.status;
+      err.body = out;
       throw err;
     }
-    return r.status === 204 ? null : r.json();
-  }
-  const repoPath = () => '/repos/' + encodeURIComponent(cfg.owner) + '/' + encodeURIComponent(cfg.repo);
-
-  function b64ToUtf8(b64) {
-    const bin = atob(b64.replace(/\s/g, ''));
-    const bytes = Uint8Array.from(bin, (c) => c.charCodeAt(0));
-    return new TextDecoder().decode(bytes);
+    out = out || {};
+    out._version = r.headers.get('X-Version');
+    return out;
   }
 
   function friendlyError(e) {
-    if (e.status === 401) return 'GitHub rejected the token. It may have expired or been revoked. Disconnect and paste a new one.';
-    if (e.status === 403) return 'The token can\'t write to this repo. Make sure Contents is set to "Read and write" for heartwood.';
-    if (e.status === 404) return 'GitHub couldn\'t find that repo or branch. Check the user, repo and branch names.';
-    if (e.status === 409 || e.status === 422) return 'GitHub refused the update (' + e.message + '). Reload the page and try again.';
-    if (e instanceof TypeError) return 'Couldn\'t reach GitHub. Check your internet connection and try again.';
-    return 'Something went wrong: ' + e.message;
+    if (e instanceof TypeError) return 'Couldn\'t reach the inventory server. Check your internet connection and try again.';
+    return e.message || 'Something went wrong.';
   }
 
   // ---------- status bar ----------
@@ -86,77 +77,113 @@
     if (!sticky) statusTimer = setTimeout(() => { bar.hidden = true; }, 6000);
   }
 
-  // ---------- connect ----------
-  async function connect(c) {
-    cfg = c;
-    const repo = await gh(repoPath());
-    if (repo.permissions && repo.permissions.push === false) {
-      const e = new Error('no push'); e.status = 403; throw e;
-    }
-    try {
-      const file = await gh(repoPath() + '/contents/' + INVENTORY_PATH + '?ref=' + encodeURIComponent(cfg.branch));
-      data = JSON.parse(b64ToUtf8(file.content));
-    } catch (e) {
-      if (e.status !== 404) throw e;
-      data = JSON.parse(JSON.stringify(DEFAULT_DATA));
-    }
+  // ---------- sign in ----------
+  async function loadInventory() {
+    const r = await api('/api/inventory');
+    version = Number(r._version) || 0;
+    delete r._version;
+    data = r;
     data.settings = Object.assign({}, DEFAULT_DATA.settings, data.settings || {});
     data.categories = data.categories || [];
     data.items = data.items || [];
     published = JSON.stringify(data);
-    publishedRefs = imageRefs();
   }
 
-  $('#connect-form').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const c = {
-      owner: $('#c-owner').value.trim(),
-      repo: $('#c-repo').value.trim(),
-      branch: $('#c-branch').value.trim() || 'gh-pages',
-      token: $('#c-token').value.trim()
-    };
-    const btn = $('#connect-btn');
+  function showScreen(which, msg) {
+    $('#connect').hidden = false;
+    $('#app').hidden = true;
+    $('#no-backend').hidden = which !== 'none';
+    $('#setup-form').hidden = which !== 'setup';
+    $('#login-form').hidden = which !== 'login';
+    $('#connect-msg').textContent = msg || '';
+  }
+
+  async function signedIn(s) {
+    session = s;
+    saveSession(s);
+    await loadInventory();
+    showApp();
+  }
+
+  async function submitForm(form, fn) {
+    const btn = form.querySelector('[type=submit]');
     btn.disabled = true;
-    $('#connect-msg').textContent = 'Connecting…';
-    try {
-      await connect(c);
-      saveCfg(c);
-      showApp();
-    } catch (err) {
-      $('#connect-msg').textContent = friendlyError(err);
-    } finally {
-      btn.disabled = false;
-    }
+    $('#connect-msg').textContent = 'One moment…';
+    try { await fn(); }
+    catch (err) { $('#connect-msg').textContent = friendlyError(err); }
+    finally { btn.disabled = false; }
+  }
+
+  $('#setup-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    submitForm(e.currentTarget, async () => {
+      const r = await api('/api/setup', { method: 'POST', body: { code: $('#u-code').value, name: $('#u-name').value, email: $('#u-email').value, password: $('#u-pass').value } });
+      await signedIn({ token: r.token, user: r.user });
+    });
+  });
+
+  $('#login-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    submitForm(e.currentTarget, async () => {
+      const r = await api('/api/login', { method: 'POST', body: { email: $('#l-email').value, password: $('#l-pass').value } });
+      await signedIn({ token: r.token, user: r.user });
+    });
   });
 
   async function boot() {
-    const saved = loadCfg();
+    if (!API) { showScreen('none'); return; }
+    const saved = loadSession();
     if (saved && saved.token) {
+      session = saved;
       try {
-        await connect(saved);
+        session.user = await api('/api/me');
+        delete session.user._version;
+        saveSession(session);
+        await loadInventory();
         showApp();
         return;
       } catch (err) {
-        $('#connect-msg').textContent = friendlyError(err);
-        $('#c-owner').value = saved.owner; $('#c-repo').value = saved.repo; $('#c-branch').value = saved.branch;
+        session = null;
+        clearSession();
+        if (!(err.status === 401)) { showScreen('login', friendlyError(err)); return; }
       }
     }
-    $('#connect').hidden = false;
+    try {
+      const st = await api('/api/status');
+      showScreen(st.needsSetup ? 'setup' : 'login');
+    } catch (err) {
+      showScreen('login', friendlyError(err));
+    }
   }
 
   function showApp() {
     $('#connect').hidden = true;
     $('#app').hidden = false;
     $('#view-live').href = 'https://tilleywoodworks.com/';
-    $('#conn-info').textContent = cfg.owner + '/' + cfg.repo + ' (' + cfg.branch + ')';
+    const owner = session.user.role === 'owner';
+    $('#staff-tab').hidden = !owner;
+    $('#me-email').textContent = session.user.email;
+    $('#me-role').textContent = owner ? '(owner)' : '(staff)';
+    $('#import-box').hidden = !(owner && version === 0);
     renderAll();
+    if (owner) loadUsers();
   }
 
-  $('#disconnect').addEventListener('click', () => {
+  $('#disconnect').addEventListener('click', async () => {
     if (isDirty() && !armed($('#disconnect'), 'Unpublished changes will be lost. Tap again')) return;
-    clearCfg();
+    try { await api('/api/logout', { method: 'POST' }); } catch (e) { /* signing out locally anyway */ }
+    clearSession();
     location.reload();
   });
+
+  // Signed out by the server (expired, or removed by the owner)?
+  function handleAuthError(err) {
+    if (err.status !== 401) return false;
+    clearSession();
+    session = null;
+    showScreen('login', err.message);
+    return true;
+  }
 
   // ---------- two-tap confirm ----------
   function armed(btn, label) {
@@ -200,13 +227,15 @@
   });
 
   // ---------- images ----------
-  function imageRefs() {
-    const s = new Set();
-    data.items.forEach((i) => (i.images || []).forEach((p) => s.add(p)));
-    if (data.settings.heroImage) s.add(data.settings.heroImage);
-    return s;
+  function imageRefs(d) {
+    d = d || data;
+    const out = new Set();
+    d.items.forEach((i) => (i.images || []).forEach((p) => out.add(p)));
+    if (d.settings.heroImage) out.add(d.settings.heroImage);
+    return out;
   }
-  const imgSrc = (p) => previews.get(p) || p;
+  // Uploaded photos live on the server ("img/…"); the original photos ship with the site.
+  const imgSrc = (p) => previews.get(p) || (/^img\//.test(p) ? API + '/' + p : p);
 
   function loadImageEl(file) {
     return new Promise((resolve, reject) => {
@@ -229,10 +258,24 @@
     canvas.width = w; canvas.height = h;
     canvas.getContext('2d').drawImage(src, 0, 0, w, h);
     const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
-    const path = 'images/' + (slug(baseName) || 'photo') + '-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6) + '.jpg';
+    const path = 'pending/' + (slug(baseName) || 'photo') + '-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6) + '.jpg';
     pending.set(path, dataUrl.split(',')[1]);
     previews.set(path, dataUrl);
     return path;
+  }
+
+  function b64ToBlob(b64) {
+    const bin = atob(b64);
+    const bytes = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    return new Blob([bytes], { type: 'image/jpeg' });
+  }
+
+  // Swap every temp/old photo path in the inventory for its new server path.
+  function replacePaths(map) {
+    data.items.forEach((i) => { i.images = (i.images || []).map((p) => map.get(p) || p); });
+    if (map.has(data.settings.heroImage)) data.settings.heroImage = map.get(data.settings.heroImage);
+    if (draft) draft.images = (draft.images || []).map((p) => map.get(p) || p);
   }
 
   // ---------- tabs ----------
@@ -558,49 +601,157 @@
   // ---------- publish ----------
   $('#publish-btn').addEventListener('click', publish);
 
+  async function uploadPending() {
+    const map = new Map();
+    const refs = [...imageRefs()].filter((p) => pending.has(p));
+    for (let k = 0; k < refs.length; k++) {
+      const p = refs[k];
+      setStatus('Uploading photo ' + (k + 1) + ' of ' + refs.length + '…', null, true);
+      const base = p.replace(/^pending\//, '').replace(/-[a-z0-9]+\.jpg$/, '');
+      const r = await api('/api/images?name=' + encodeURIComponent(base), { method: 'POST', body: b64ToBlob(pending.get(p)) });
+      map.set(p, r.path);
+      previews.set(r.path, previews.get(p));
+      pending.delete(p);
+    }
+    if (map.size) replacePaths(map);
+  }
+
   async function publish() {
     if (busy || !isDirty()) return;
     busy = true;
     updatePublishButton();
     setStatus('Publishing to your site…', null, true);
     try {
-      const refPath = repoPath() + '/git/ref/heads/' + encodeURIComponent(cfg.branch);
-      const ref = await gh(refPath);
-      const headSha = ref.object.sha;
-      const head = await gh(repoPath() + '/git/commits/' + headSha);
-
-      const refsNow = imageRefs();
-      const tree = [];
-      for (const p of refsNow) {
-        if (!pending.has(p)) continue;
-        const blob = await gh(repoPath() + '/git/blobs', { method: 'POST', body: { content: pending.get(p), encoding: 'base64' } });
-        tree.push({ path: p, mode: '100644', type: 'blob', sha: blob.sha });
-      }
-      publishedRefs.forEach((p) => {
-        if (!refsNow.has(p) && p.startsWith('images/')) tree.push({ path: p, mode: '100644', type: 'blob', sha: null });
-      });
-      tree.push({ path: INVENTORY_PATH, mode: '100644', type: 'blob', content: JSON.stringify(data, null, 2) + '\n' });
-
-      const newTree = await gh(repoPath() + '/git/trees', { method: 'POST', body: { base_tree: head.tree.sha, tree } });
+      await uploadPending();
       const n = changeCount();
-      const commit = await gh(repoPath() + '/git/commits', {
-        method: 'POST',
-        body: { message: 'Update inventory (' + n + (n === 1 ? ' change' : ' changes') + ') from shop admin', tree: newTree.sha, parents: [headSha] }
-      });
-      await gh(repoPath() + '/git/refs/heads/' + encodeURIComponent(cfg.branch), { method: 'PATCH', body: { sha: commit.sha } });
-
+      const r = await api('/api/inventory', { method: 'PUT', body: { baseVersion: version, data } });
+      version = r.version;
       published = JSON.stringify(data);
-      publishedRefs = refsNow;
-      refsNow.forEach((p) => pending.delete(p));
       busy = false;
+      $('#import-box').hidden = true;
       renderAll();
-      setStatus('Published. Your live site updates in about a minute. <a href="' + esc($('#view-live').href) + '" target="_blank" rel="noopener">View site ↗</a>', 'ok', true);
+      setStatus('Published ' + n + (n === 1 ? ' change' : ' changes') + '. Your site shows them within a minute. <a href="' + esc($('#view-live').href) + '" target="_blank" rel="noopener">View site ↗</a>', 'ok', true);
     } catch (err) {
       busy = false;
       updatePublishButton();
+      if (handleAuthError(err)) return;
+      if (err.status === 409) {
+        setStatus(esc(err.message) + ' <button type="button" class="mini" id="reload-now">Reload now</button>', 'err', true);
+        const b = $('#reload-now');
+        if (b) b.addEventListener('click', () => { published = JSON.stringify(data); location.reload(); });
+        return;
+      }
       setStatus(esc(friendlyError(err)) + ' Your changes are still here.', 'err', true);
     }
   }
+
+  // ---------- staff (owner) ----------
+  let users = [];
+  async function loadUsers() {
+    try {
+      users = (await api('/api/users')).users || [];
+      renderUsers();
+    } catch (err) {
+      if (!handleAuthError(err)) $('#ulist').innerHTML = '<li class="muted">' + esc(friendlyError(err)) + '</li>';
+    }
+  }
+
+  function renderUsers() {
+    $('#ulist').innerHTML = users.map((u) =>
+      '<li class="uitem">' +
+        '<div class="uitem__who"><strong>' + esc(u.name || u.email) + '</strong><span>' + esc(u.email) + '</span></div>' +
+        '<span class="pill">' + (u.role === 'owner' ? 'Owner' : 'Staff') + '</span>' +
+        (u.role === 'owner' ? '<span></span>' : '<button type="button" class="btn btn--danger" data-user-remove="' + esc(u.email) + '">Remove</button>') +
+      '</li>'
+    ).join('') || '<li class="muted">No one yet.</li>';
+  }
+
+  $('#n-email').addEventListener('input', () => {
+    const known = users.some((u) => u.email === $('#n-email').value.trim().toLowerCase());
+    $('#user-submit').textContent = known ? 'Set new password' : 'Add helper';
+    $('#user-form-title').textContent = known ? 'Reset a password' : 'Add a helper';
+  });
+
+  $('#user-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = $('#user-submit');
+    btn.disabled = true;
+    try {
+      const body = { email: $('#n-email').value, password: $('#n-pass').value };
+      if ($('#n-name').value.trim()) body.name = $('#n-name').value.trim();
+      const r = await api('/api/users', { method: 'POST', body });
+      setStatus(r.created ? esc(r.user.email) + ' can now sign in at tilleywoodworks.com/admin.html with the password you set.' : 'New password set for ' + esc(r.user.email) + '.', 'ok');
+      e.target.reset();
+      $('#user-submit').textContent = 'Add helper';
+      $('#user-form-title').textContent = 'Add a helper';
+      loadUsers();
+    } catch (err) {
+      if (!handleAuthError(err)) setStatus(esc(friendlyError(err)), 'err');
+    } finally {
+      btn.disabled = false;
+    }
+  });
+
+  $('#ulist').addEventListener('click', async (e) => {
+    const b = e.target.closest('[data-user-remove]');
+    if (!b) return;
+    if (!armed(b, 'Tap again to remove')) return;
+    try {
+      await api('/api/users/' + encodeURIComponent(b.dataset.userRemove), { method: 'DELETE' });
+      setStatus(esc(b.dataset.userRemove) + ' no longer has access.', 'ok');
+      loadUsers();
+    } catch (err) {
+      if (!handleAuthError(err)) setStatus(esc(friendlyError(err)), 'err');
+    }
+  });
+
+  // ---------- account ----------
+  $('#pass-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    try {
+      await api('/api/password', { method: 'POST', body: { current: $('#a-cur').value, password: $('#a-new').value } });
+      e.target.reset();
+      setStatus('Password changed.', 'ok');
+    } catch (err) {
+      if (!handleAuthError(err)) setStatus(esc(friendlyError(err)), 'err');
+    }
+  });
+
+  // ---------- one-time import from the static site ----------
+  $('#import-btn').addEventListener('click', async (e) => {
+    const btn = e.currentTarget;
+    if (!armed(btn, 'Tap again to import (replaces what\'s here)')) return;
+    btn.disabled = true;
+    try {
+      setStatus('Reading the current site…', null, true);
+      const r = await fetch('data/inventory.json?v=' + Date.now(), { cache: 'no-store' });
+      if (!r.ok) throw new Error('Couldn\'t read the current inventory file.');
+      const old = await r.json();
+      data = {
+        settings: Object.assign({}, DEFAULT_DATA.settings, old.settings || {}),
+        categories: old.categories || [],
+        items: old.items || []
+      };
+      // Copy each site photo into pending so Publish uploads it to the server.
+      const refs = [...imageRefs()].filter((p) => !/^img\//.test(p));
+      const map = new Map();
+      for (let k = 0; k < refs.length; k++) {
+        setStatus('Copying photo ' + (k + 1) + ' of ' + refs.length + '…', null, true);
+        const res = await fetch(refs[k], { cache: 'no-store' });
+        if (!res.ok) continue;
+        const blob = await res.blob();
+        const tmp = await processImage(blob, refs[k].replace(/^.*\//, '').replace(/\.[a-z]+$/i, ''));
+        map.set(refs[k], tmp);
+      }
+      replacePaths(map);
+      renderAll();
+      await publish();
+    } catch (err) {
+      setStatus(esc(friendlyError(err)), 'err', true);
+    } finally {
+      btn.disabled = false;
+    }
+  });
 
   boot();
 })();

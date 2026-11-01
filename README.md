@@ -1,16 +1,19 @@
 # Tilley Woodworks shop site (GitHub Pages)
 
-This branch (`gh-pages`) is the live shop at **https://tallguy644.github.io/heartwood/**.
-The Shopify theme lives on the `main` branch.
+This branch (`gh-pages`) is the live shop at **https://tilleywoodworks.com**.
+The Shopify theme and the inventory server (`server/`) live on the `main` branch.
 
-- `index.html` is the public shop. It reads everything from `data/inventory.json`.
-- `admin.html` is the inventory manager: **https://tallguy644.github.io/heartwood/admin.html**
+- `index.html` is the public shop. It reads the inventory from the backend set in `assets/config.js`
+  (`window.TW_API`), and falls back to `data/inventory.json` if that is empty or unreachable.
+- `admin.html` is the inventory manager: **https://tilleywoodworks.com/admin.html**
+  - Sign in with an email and password. The owner adds and removes staff on the **Staff** tab.
   - Add, edit and delete pieces, upload photos, set prices, mark pieces sold or hidden.
   - Rename the store, edit home page text, and manage categories.
-  - **Publish** commits your changes here in one commit; the live site updates in about a minute.
-- `images/` holds piece photos. The admin resizes uploads to 1800px JPEGs before publishing.
+  - **Publish** saves to the backend; the live site shows changes within a minute.
+- Photos uploaded through the admin are stored on the backend (`img/…`). `images/` holds the original site photos.
 
-## First-time admin setup
+## Backend
 
-Create a fine-grained GitHub token: Settings → Developer settings → Personal access tokens → Fine-grained tokens.
-Give it access to **only** the `heartwood` repo, with **Contents: Read and write**. Paste it into the admin page once per device; it is stored only in that browser.
+A Cloudflare Worker with KV storage (`server/` on `main`), deployed by GitHub Actions on every push to `main`
+that touches `server/`. It needs two repo secrets: `CLOUDFLARE_API_TOKEN` and `OWNER_SETUP_CODE`.
+The setup code is used once on the admin page to create the owner account.

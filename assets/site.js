@@ -17,8 +17,14 @@
 
   document.getElementById('year').textContent = new Date().getFullYear();
 
-  fetch('data/inventory.json?v=' + Date.now(), { cache: 'no-store' })
-    .then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); })
+  const API = String(window.TW_API || '').replace(/\/+$/, '');
+  // Photos uploaded through the admin live on the backend ("img/…"); older ones ship with the site.
+  const src = (p) => (API && /^img\//.test(p) ? API + '/' + p : p);
+
+  function getJson(url) {
+    return fetch(url, { cache: 'no-store' }).then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); });
+  }
+  (API ? getJson(API + '/api/inventory').catch(() => getJson('data/inventory.json?v=' + Date.now())) : getJson('data/inventory.json?v=' + Date.now()))
     .then((d) => { data = d; renderAll(); openFromHash(); })
     .catch(() => {
       document.getElementById('grid').innerHTML = '<p class="empty">Pieces could not be loaded right now. Please refresh in a moment.</p>';
@@ -45,7 +51,7 @@
       if (v) el.textContent = v;
     });
     const hero = document.getElementById('hero-img');
-    if (s.heroImage) hero.src = s.heroImage;
+    if (s.heroImage) hero.src = src(s.heroImage);
     hero.alt = 'Work from ' + name;
 
     renderContact();
@@ -88,7 +94,7 @@
     }
     grid.innerHTML = items.map((i) => {
       const img = (i.images && i.images[0])
-        ? '<img src="' + esc(i.images[0]) + '" alt="' + esc(i.name) + '" loading="lazy">'
+        ? '<img src="' + esc(src(i.images[0])) + '" alt="' + esc(i.name) + '" loading="lazy">'
         : '<div class="noimg">Photo coming soon</div>';
       let badge = '';
       if (i.status === 'sold') badge = '<span class="badge badge--dark">Sold</span>';
@@ -139,8 +145,8 @@
       '<button class="piece__close" type="button" aria-label="Close" data-close>&times;</button>' +
       '<div class="piece__inner">' +
         '<div class="piece__gallery">' +
-          (imgs.length ? '<img class="piece__main" id="piece-main" src="' + esc(imgs[0]) + '" alt="' + esc(i.name) + '">' : '<div class="noimg piece__main">Photo coming soon</div>') +
-          (imgs.length > 1 ? '<div class="piece__thumbs">' + imgs.map((src, n) => '<button type="button" data-img="' + esc(src) + '" aria-current="' + (n === 0) + '" aria-label="Photo ' + (n + 1) + '"><img src="' + esc(src) + '" alt=""></button>').join('') + '</div>' : '') +
+          (imgs.length ? '<img class="piece__main" id="piece-main" src="' + esc(src(imgs[0])) + '" alt="' + esc(i.name) + '">' : '<div class="noimg piece__main">Photo coming soon</div>') +
+          (imgs.length > 1 ? '<div class="piece__thumbs">' + imgs.map((p, n) => '<button type="button" data-img="' + esc(src(p)) + '" aria-current="' + (n === 0) + '" aria-label="Photo ' + (n + 1) + '"><img src="' + esc(src(p)) + '" alt=""></button>').join('') + '</div>' : '') +
         '</div>' +
         '<div class="piece__body">' +
           '<div><span class="status status--' + esc(i.status) + '">' + (STATUS[i.status] || '') + '</span></div>' +

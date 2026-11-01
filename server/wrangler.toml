@@ -1,0 +1,15 @@
+name = "tilley-woodworks"
+main = "src/index.js"
+compatibility_date = "2026-10-01"
+workers_dev = true
+
+# The deploy workflow finds or creates the KV namespace "tilley-woodworks-data"
+# in your Cloudflare account and fills in its id here before deploying.
+[[kv_namespaces]]
+binding = "DATA"
+id = "KV_NAMESPACE_ID"
+
+[vars]
+ALLOWED_ORIGINS = "https://tilleywoodworks.com,https://www.tilleywoodworks.com,http://tilleywoodworks.com,http://www.tilleywoodworks.com,https://tallguy644.github.io"
+
+# SETUP_CODE is a secret, set by the deploy workflow from the GitHub secret OWNER_SETUP_CODE.

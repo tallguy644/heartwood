@@ -1,0 +1,69 @@
+name: Deploy backend (Cloudflare Worker)
+
+on:
+  push:
+    branches: [main]
+    paths: ['server/**', '.github/workflows/deploy-backend.yml']
+  workflow_dispatch:
+
+concurrency: deploy-backend
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: server
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      OWNER_SETUP_CODE: ${{ secrets.OWNER_SETUP_CODE }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Test
+        run: node test/run.mjs
+
+      - name: Check secrets
+        id: secrets
+        run: |
+          if [ -z "$CLOUDFLARE_API_TOKEN" ]; then
+            echo "::notice::CLOUDFLARE_API_TOKEN is not set yet, so nothing was deployed."
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Install wrangler
+        if: steps.secrets.outputs.ready == 'true'
+        run: npm install --no-audit --no-fund
+
+      - name: Find or create the KV namespace
+        if: steps.secrets.outputs.ready == 'true'
+        run: |
+          set -euo pipefail
+          find_id() { npx wrangler kv namespace list 2>/dev/null | jq -r '[.[] | select(.title | endswith("tilley-woodworks-data"))][0].id // empty'; }
+          ID="$(find_id)"
+          if [ -z "$ID" ]; then
+            npx wrangler kv namespace create tilley-woodworks-data
+            ID="$(find_id)"
+          fi
+          if [ -z "$ID" ]; then echo "::error::Could not find or create the KV namespace."; exit 1; fi
+          sed -i "s/KV_NAMESPACE_ID/$ID/" wrangler.toml
+          echo "Using KV namespace $ID"
+
+      - name: Deploy
+        if: steps.secrets.outputs.ready == 'true'
+        run: |
+          set -o pipefail
+          npx wrangler deploy 2>&1 | tee deploy.log
+          URL="$(grep -oE 'https://[a-z0-9.-]+\.workers\.dev' deploy.log | head -1 || true)"
+          echo "::notice::Backend address: ${URL:-see deploy log}"
+          echo "### Backend address: ${URL:-see deploy log}" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Set the owner setup code
+        if: steps.secrets.outputs.ready == 'true' && env.OWNER_SETUP_CODE != ''
+        run: printf '%s' "$OWNER_SETUP_CODE" | npx wrangler secret put SETUP_CODE

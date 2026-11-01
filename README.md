@@ -1,4 +1,4 @@
-# Heartwood shop site (GitHub Pages)
+# Tilley Woodworks shop site (GitHub Pages)
 
 This branch (`gh-pages`) is the live shop at **https://tallguy644.github.io/heartwood/**.
 The Shopify theme lives on the `main` branch.

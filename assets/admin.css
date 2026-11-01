@@ -1,4 +1,4 @@
-/* Heartwood admin — workbench layout: sticky top bar with tabs, list of pieces, dialog editor */
+/* Tilley Woodworks admin — workbench layout: sticky top bar with tabs, list of pieces, dialog editor */
 .admin { --danger: #a5301b; }
 @media (prefers-color-scheme: dark) { .admin { --danger: #e2735e; } }
 

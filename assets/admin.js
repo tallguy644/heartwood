@@ -12,7 +12,7 @@
   const INVENTORY_PATH = 'data/inventory.json';
 
   const DEFAULT_DATA = {
-    settings: { storeName: 'Heartwood', tagline: '', heroEyebrow: '', heroHeading: '', heroText: '', heroImage: '', aboutHeading: '', aboutText: '', contactEmail: '', contactPhone: '', customOrdersText: '' },
+    settings: { storeName: 'Tilley Woodworks', tagline: '', heroEyebrow: '', heroHeading: '', heroText: '', heroImage: '', aboutHeading: '', aboutText: '', contactEmail: '', contactPhone: '', customOrdersText: '' },
     categories: [],
     items: []
   };

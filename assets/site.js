@@ -37,7 +37,7 @@
 
   function renderAll() {
     const s = data.settings || {};
-    const name = s.storeName || 'Heartwood';
+    const name = s.storeName || 'Tilley Woodworks';
     document.title = name + (s.tagline ? ' — ' + s.tagline : '');
     document.querySelectorAll('[data-store-name]').forEach((el) => { el.textContent = name; });
     document.querySelectorAll('[data-s]').forEach((el) => {

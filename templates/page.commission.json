@@ -1,0 +1,16 @@
+{
+  "sections": {
+    "main": {
+      "type": "main-commission",
+      "blocks": {
+        "s1": { "type": "step", "settings": { "title": "Send your idea", "text": "Share the size, wood and style you have in mind — photos help." } },
+        "s2": { "type": "step", "settings": { "title": "Get a quote", "text": "We'll follow up with questions, a sketch if needed, and a price." } },
+        "s3": { "type": "step", "settings": { "title": "We build it", "text": "Once you approve, we pick your slab and get to work." } },
+        "s4": { "type": "step", "settings": { "title": "Delivered to you", "text": "Finished, wrapped and shipped — or ready for local pickup." } }
+      },
+      "block_order": ["s1", "s2", "s3", "s4"],
+      "settings": {}
+    }
+  },
+  "order": ["main"]
+}

@@ -1,0 +1,47 @@
+{%- comment -%}
+  Renders a product card.
+  Accepts: product (object) — when blank, renders a placeholder card.
+{%- endcomment -%}
+{%- if product != blank -%}
+  <article class="product-card">
+    <a href="{{ product.url }}" class="product-card__link">
+      <div class="product-card__media">
+        {%- if product.featured_media -%}
+          {{ product.featured_media | image_url: width: 800 | image_tag:
+            loading: 'lazy',
+            sizes: '(min-width: 990px) 25vw, (min-width: 750px) 33vw, 50vw',
+            widths: '300, 400, 600, 800',
+            alt: product.featured_media.alt | default: product.title,
+            class: 'product-card__image'
+          }}
+        {%- else -%}
+          {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg' }}
+        {%- endif -%}
+        {%- if product.available == false -%}
+          <span class="badge badge--dark">Sold</span>
+        {%- elsif product.compare_at_price > product.price -%}
+          <span class="badge">Sale</span>
+        {%- elsif product.tags contains 'one-of-a-kind' -%}
+          <span class="badge">One of a kind</span>
+        {%- endif -%}
+      </div>
+      <div class="product-card__info">
+        <h3 class="product-card__title">{{ product.title | escape }}</h3>
+        {%- if product.metafields.custom.wood_species != blank -%}
+          <p class="product-card__meta">{{ product.metafields.custom.wood_species }}</p>
+        {%- endif -%}
+        {% render 'price', product: product %}
+      </div>
+    </a>
+  </article>
+{%- else -%}
+  <article class="product-card product-card--placeholder">
+    <div class="product-card__media">
+      {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg' }}
+    </div>
+    <div class="product-card__info">
+      <h3 class="product-card__title">Your handmade piece</h3>
+      <p class="price">{{ 19900 | money }}</p>
+    </div>
+  </article>
+{%- endif -%}

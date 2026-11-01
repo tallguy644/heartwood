@@ -1,0 +1,63 @@
+{%- assign commission_url = settings.commission_page | default: '/pages/commissions' -%}
+<header class="site-header" data-header>
+  <div class="page-width site-header__inner">
+    <button class="icon-button site-header__menu-toggle" type="button" aria-controls="SiteNav" aria-expanded="false" data-menu-toggle>
+      {% render 'icon', icon: 'menu' %}
+      <span class="visually-hidden">Menu</span>
+    </button>
+
+    <a href="{{ routes.root_url }}" class="site-header__logo">
+      {%- if section.settings.logo != blank -%}
+        {{ section.settings.logo | image_url: width: 400 | image_tag: width: section.settings.logo_width, alt: shop.name, loading: 'eager' }}
+      {%- else -%}
+        <span class="site-header__wordmark">{{ shop.name }}</span>
+      {%- endif -%}
+    </a>
+
+    <nav id="SiteNav" class="site-nav" aria-label="Main" data-site-nav>
+      <ul class="site-nav__list">
+        {%- for link in linklists[section.settings.menu].links -%}
+          <li>
+            <a href="{{ link.url }}" class="site-nav__link{% if link.active %} is-active{% endif %}"{% if link.active %} aria-current="page"{% endif %}>{{ link.title | escape }}</a>
+          </li>
+        {%- endfor -%}
+        {%- if section.settings.show_commission_button -%}
+          <li class="site-nav__cta-mobile"><a href="{{ commission_url }}" class="button button--small">Request a custom piece</a></li>
+        {%- endif -%}
+      </ul>
+    </nav>
+
+    <div class="site-header__actions">
+      {%- if section.settings.show_commission_button -%}
+        <a href="{{ commission_url }}" class="button button--small button--outline site-header__cta">Custom orders</a>
+      {%- endif -%}
+      <a href="{{ routes.search_url }}" class="icon-button" aria-label="Search">
+        {% render 'icon', icon: 'search' %}
+      </a>
+      {%- if shop.customer_accounts_enabled -%}
+        <a href="{{ routes.account_url }}" class="icon-button" aria-label="Account">
+          {% render 'icon', icon: 'account' %}
+        </a>
+      {%- endif -%}
+      <a href="{{ routes.cart_url }}" class="icon-button cart-link" aria-label="Cart, {{ cart.item_count }} items">
+        {% render 'icon', icon: 'cart' %}
+        {%- if cart.item_count > 0 -%}
+          <span class="cart-link__count">{{ cart.item_count }}</span>
+        {%- endif -%}
+      </a>
+    </div>
+  </div>
+</header>
+
+{% schema %}
+{
+  "name": "Header",
+  "class": "header-wrapper",
+  "settings": [
+    { "type": "image_picker", "id": "logo", "label": "Logo" },
+    { "type": "range", "id": "logo_width", "label": "Logo width", "min": 60, "max": 300, "step": 10, "unit": "px", "default": 140 },
+    { "type": "link_list", "id": "menu", "label": "Menu", "default": "main-menu" },
+    { "type": "checkbox", "id": "show_commission_button", "label": "Show 'Custom orders' button", "default": true }
+  ]
+}
+{% endschema %}

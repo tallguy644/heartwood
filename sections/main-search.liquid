@@ -1,0 +1,40 @@
+{%- paginate search.results by 16 -%}
+<section class="section">
+  <div class="page-width">
+    <header class="page-header">
+      <h1>Search</h1>
+      <form action="{{ routes.search_url }}" method="get" role="search" class="search-form">
+        <label for="SearchInput" class="visually-hidden">Search</label>
+        <input id="SearchInput" type="search" name="q" value="{{ search.terms | escape }}" placeholder="Search shelves, boards, tables…">
+        <input type="hidden" name="options[prefix]" value="last">
+        <button type="submit" class="button">Search</button>
+      </form>
+    </header>
+
+    {%- if search.performed -%}
+      {%- if search.results_count == 0 -%}
+        <p class="empty-state">Nothing found for “{{ search.terms | escape }}”. Try another word, or <a href="{{ settings.commission_page | default: '/pages/commissions' }}">ask us to build it</a>.</p>
+      {%- else -%}
+        <p class="collection-toolbar__count">{{ search.results_count }} {{ search.results_count | pluralize: 'result', 'results' }}</p>
+        <div class="product-grid product-grid--4">
+          {%- for item in search.results -%}
+            {%- if item.object_type == 'product' -%}
+              {% render 'product-card', product: item %}
+            {%- else -%}
+              <article class="search-result card">
+                <a href="{{ item.url }}"><h2 class="h4">{{ item.title | escape }}</h2></a>
+                <p>{{ item.content | strip_html | truncatewords: 24 }}</p>
+              </article>
+            {%- endif -%}
+          {%- endfor -%}
+        </div>
+        {% render 'pagination', paginate: paginate %}
+      {%- endif -%}
+    {%- endif -%}
+  </div>
+</section>
+{%- endpaginate -%}
+
+{% schema %}
+{ "name": "Search results" }
+{% endschema %}

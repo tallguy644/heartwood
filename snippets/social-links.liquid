@@ -1,0 +1,15 @@
+{%- liquid
+  assign has_social = false
+  if settings.social_instagram != blank or settings.social_facebook != blank or settings.social_pinterest != blank or settings.social_youtube != blank or settings.social_tiktok != blank
+    assign has_social = true
+  endif
+-%}
+{%- if has_social -%}
+  <ul class="social-links">
+    {%- if settings.social_instagram != blank -%}<li><a href="{{ settings.social_instagram }}" target="_blank" rel="noopener">Instagram</a></li>{%- endif -%}
+    {%- if settings.social_facebook != blank -%}<li><a href="{{ settings.social_facebook }}" target="_blank" rel="noopener">Facebook</a></li>{%- endif -%}
+    {%- if settings.social_pinterest != blank -%}<li><a href="{{ settings.social_pinterest }}" target="_blank" rel="noopener">Pinterest</a></li>{%- endif -%}
+    {%- if settings.social_youtube != blank -%}<li><a href="{{ settings.social_youtube }}" target="_blank" rel="noopener">YouTube</a></li>{%- endif -%}
+    {%- if settings.social_tiktok != blank -%}<li><a href="{{ settings.social_tiktok }}" target="_blank" rel="noopener">TikTok</a></li>{%- endif -%}
+  </ul>
+{%- endif -%}

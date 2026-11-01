@@ -1,0 +1,25 @@
+{%- assign commission_url = section.settings.button_link | default: settings.commission_page | default: '/pages/commissions' -%}
+<section class="section color-dark commission-cta">
+  <div class="page-width commission-cta__inner">
+    <div>
+      {%- if section.settings.eyebrow != blank -%}<p class="eyebrow">{{ section.settings.eyebrow | escape }}</p>{%- endif -%}
+      <h2>{{ section.settings.heading | escape }}</h2>
+      <div class="rte">{{ section.settings.text }}</div>
+    </div>
+    <a href="{{ commission_url }}" class="button button--large">{{ section.settings.button_label | escape }}</a>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Commission banner",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Small text above heading", "default": "Custom work" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Have something in mind? Let's build it." },
+    { "type": "richtext", "id": "text", "label": "Text", "default": "<p>Dining tables sized to your room, a cutting board with your family name, a bookshelf for that awkward corner — tell us what you're picturing and we'll quote it.</p>" },
+    { "type": "text", "id": "button_label", "label": "Button label", "default": "Start a custom order" },
+    { "type": "url", "id": "button_link", "label": "Button link", "info": "Leave blank to use the commission page set in Theme settings." }
+  ],
+  "presets": [{ "name": "Commission banner" }]
+}
+{% endschema %}

@@ -1,0 +1,19 @@
+<article class="section">
+  <div class="page-width page-width--narrow">
+    <header class="page-header">
+      <p class="eyebrow">{{ article.published_at | date: '%B %-d, %Y' }}</p>
+      <h1>{{ article.title | escape }}</h1>
+    </header>
+    {%- if article.image -%}
+      <div class="article__image">
+        {{ article.image | image_url: width: 1600 | image_tag: loading: 'eager', sizes: '(min-width: 800px) 760px, 100vw', widths: '600, 900, 1200, 1600', alt: article.image.alt | default: article.title }}
+      </div>
+    {%- endif -%}
+    <div class="rte">{{ article.content }}</div>
+    <p><a href="{{ blog.url }}" class="link-arrow">Back to {{ blog.title | escape }}</a></p>
+  </div>
+</article>
+
+{% schema %}
+{ "name": "Article" }
+{% endschema %}

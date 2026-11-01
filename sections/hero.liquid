@@ -1,0 +1,67 @@
+{%- liquid
+  assign commission_url = settings.commission_page | default: '/pages/commissions'
+  assign layout = section.settings.layout
+-%}
+<section class="hero hero--{{ layout }} hero--{{ section.settings.height }}" style="--overlay: {{ section.settings.overlay | divided_by: 100.0 }}">
+  {%- capture hero_image -%}
+    {%- if section.settings.image != blank -%}
+      {{ section.settings.image | image_url: width: 2400 | image_tag:
+        class: 'hero__image',
+        loading: 'eager',
+        fetchpriority: 'high',
+        sizes: '(min-width: 990px) 50vw, 100vw',
+        widths: '750, 1100, 1500, 1800, 2400'
+      }}
+    {%- else -%}
+      <img src="{{ 'live-edge-shelves.jpg' | asset_url }}" class="hero__image" alt="Three live-edge floating shelves mounted on a wall" width="1272" height="1230" loading="eager" fetchpriority="high">
+    {%- endif -%}
+  {%- endcapture -%}
+
+  {%- if layout == 'overlay' -%}{{ hero_image }}{%- endif -%}
+
+  <div class="hero__content{% if layout == 'overlay' %} page-width{% endif %}">
+    {%- if section.settings.eyebrow != blank -%}
+      <p class="eyebrow">{{ section.settings.eyebrow | escape }}</p>
+    {%- endif -%}
+    <h1 class="hero__heading">{{ section.settings.heading | escape }}</h1>
+    {%- if section.settings.text != blank -%}
+      <div class="hero__text rte">{{ section.settings.text }}</div>
+    {%- endif -%}
+    <div class="button-row">
+      {%- if section.settings.button_label != blank -%}
+        <a href="{{ section.settings.button_link | default: routes.all_products_collection_url }}" class="button button--large">{{ section.settings.button_label | escape }}</a>
+      {%- endif -%}
+      {%- if section.settings.show_commission_button -%}
+        <a href="{{ commission_url }}" class="button button--large button--ghost">Request a custom piece</a>
+      {%- endif -%}
+    </div>
+  </div>
+
+  {%- if layout == 'split' -%}<div class="hero__media">{{ hero_image }}</div>{%- endif -%}
+</section>
+
+{% schema %}
+{
+  "name": "Hero banner",
+  "settings": [
+    { "type": "select", "id": "layout", "label": "Layout", "options": [
+      { "value": "split", "label": "Text beside image" },
+      { "value": "overlay", "label": "Text over image" }
+    ], "default": "split" },
+    { "type": "image_picker", "id": "image", "label": "Image", "info": "Leave blank to use the live-edge shelves photo. For 'Text over image', a wide shot (2400 x 1200px+) works best." },
+    { "type": "range", "id": "overlay", "label": "Image darkening (text over image)", "min": 0, "max": 80, "step": 5, "unit": "%", "default": 40 },
+    { "type": "select", "id": "height", "label": "Height", "options": [
+      { "value": "medium", "label": "Medium" },
+      { "value": "large", "label": "Large" },
+      { "value": "full", "label": "Full screen" }
+    ], "default": "large" },
+    { "type": "text", "id": "eyebrow", "label": "Small text above heading", "default": "Live-edge · handcrafted · one of a kind" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Wood with a story, built to hold yours." },
+    { "type": "richtext", "id": "text", "label": "Text", "default": "<p>Live-edge shelves, boards and furniture cut from real slabs — each one keeping the natural edge of the tree it came from.</p>" },
+    { "type": "text", "id": "button_label", "label": "Button label", "default": "Shop the collection" },
+    { "type": "url", "id": "button_link", "label": "Button link" },
+    { "type": "checkbox", "id": "show_commission_button", "label": "Show 'Request a custom piece' button", "default": true }
+  ],
+  "presets": [{ "name": "Hero banner" }]
+}
+{% endschema %}

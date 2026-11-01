@@ -1,0 +1,16 @@
+{
+  "type": "footer",
+  "name": "Footer group",
+  "sections": {
+    "footer": {
+      "type": "footer",
+      "settings": {
+        "menu": "footer",
+        "about_heading": "From our shop to your home",
+        "about_text": "<p>Furniture, boards and heirlooms built one at a time from hardwoods we pick by hand.</p>",
+        "show_newsletter": true
+      }
+    }
+  },
+  "order": ["footer"]
+}

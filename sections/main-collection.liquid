@@ -1,0 +1,49 @@
+{%- paginate collection.products by section.settings.per_page -%}
+<section class="section">
+  <div class="page-width">
+    <header class="page-header">
+      <h1>{{ collection.title | escape }}</h1>
+      {%- if collection.description != blank -%}
+        <div class="rte page-header__text">{{ collection.description }}</div>
+      {%- endif -%}
+    </header>
+
+    {%- if collection.sort_options.size > 0 -%}
+      <form class="collection-toolbar" data-sort-form>
+        <p class="collection-toolbar__count">{{ collection.products_count }} {{ collection.products_count | pluralize: 'piece', 'pieces' }}</p>
+        <label for="SortBy" class="visually-hidden">Sort by</label>
+        <select id="SortBy" name="sort_by" class="select" data-sort-select>
+          {%- for option in collection.sort_options -%}
+            <option value="{{ option.value | escape }}"{% if option.value == collection.sort_by | default: collection.default_sort_by %} selected{% endif %}>{{ option.name | escape }}</option>
+          {%- endfor -%}
+        </select>
+      </form>
+    {%- endif -%}
+
+    {%- if collection.products.size > 0 -%}
+      <div class="product-grid product-grid--{{ section.settings.columns }}">
+        {%- for product in collection.products -%}
+          {% render 'product-card', product: product %}
+        {%- endfor -%}
+      </div>
+    {%- else -%}
+      <p class="empty-state">No pieces here right now — check back soon, or <a href="{{ settings.commission_page | default: '/pages/commissions' }}">request a custom one</a>.</p>
+    {%- endif -%}
+
+    {% render 'pagination', paginate: paginate %}
+  </div>
+</section>
+{%- endpaginate -%}
+
+{% schema %}
+{
+  "name": "Collection",
+  "settings": [
+    { "type": "range", "id": "per_page", "label": "Products per page", "min": 8, "max": 48, "step": 4, "default": 16 },
+    { "type": "select", "id": "columns", "label": "Columns on desktop", "options": [
+      { "value": "3", "label": "3" },
+      { "value": "4", "label": "4" }
+    ], "default": "4" }
+  ]
+}
+{% endschema %}

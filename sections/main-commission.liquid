@@ -1,0 +1,137 @@
+<section class="section">
+  <div class="page-width commission">
+    <div class="commission__intro">
+      <p class="eyebrow">{{ section.settings.eyebrow | escape }}</p>
+      <h1>{{ page.title | escape }}</h1>
+      <div class="rte">{{ page.content }}</div>
+
+      {%- if section.blocks.size > 0 -%}
+        <ol class="steps">
+          {%- for block in section.blocks -%}
+            <li class="steps__item" {{ block.shopify_attributes }}>
+              <span class="steps__number">{{ forloop.index }}</span>
+              <div>
+                <h2 class="h4">{{ block.settings.title | escape }}</h2>
+                <p>{{ block.settings.text | escape }}</p>
+              </div>
+            </li>
+          {%- endfor -%}
+        </ol>
+      {%- endif -%}
+    </div>
+
+    <div class="commission__form card">
+      {%- form 'contact', id: 'CommissionForm' -%}
+        {%- if form.posted_successfully? -%}
+          <div class="form-message form-message--success" role="status">
+            <h2 class="h3">Thanks — your request is in.</h2>
+            <p>{{ section.settings.success_text | escape }}</p>
+          </div>
+        {%- else -%}
+          <h2 class="h3">{{ section.settings.form_heading | escape }}</h2>
+          {%- if form.errors -%}
+            <p class="form-message form-message--error" role="alert">{{ form.errors | default_errors }}</p>
+          {%- endif -%}
+          <input type="hidden" name="contact[Request type]" value="Custom commission">
+
+          <div class="field-row">
+            <div class="field">
+              <label for="CF-name">Name</label>
+              <input id="CF-name" type="text" name="contact[name]" autocomplete="name" required value="{{ form.name }}">
+            </div>
+            <div class="field">
+              <label for="CF-email">Email</label>
+              <input id="CF-email" type="email" name="contact[email]" autocomplete="email" required value="{{ form.email }}">
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="CF-phone">Phone <span class="optional">(optional)</span></label>
+            <input id="CF-phone" type="tel" name="contact[phone]" autocomplete="tel" value="{{ form.phone }}">
+          </div>
+
+          <div class="field">
+            <label for="CF-piece">What would you like built?</label>
+            <select id="CF-piece" name="contact[Piece type]" data-piece-select>
+              {%- assign piece_types = section.settings.piece_types | newline_to_br | split: '<br />' -%}
+              {%- for piece in piece_types -%}
+                {%- assign p = piece | strip -%}
+                {%- if p != blank -%}<option value="{{ p | escape }}">{{ p | escape }}</option>{%- endif -%}
+              {%- endfor -%}
+              <option value="Something else">Something else</option>
+            </select>
+          </div>
+
+          <div class="field-row">
+            <div class="field">
+              <label for="CF-wood">Preferred wood</label>
+              <select id="CF-wood" name="contact[Wood]">
+                {%- assign woods = section.settings.wood_types | newline_to_br | split: '<br />' -%}
+                {%- for wood in woods -%}
+                  {%- assign w = wood | strip -%}
+                  {%- if w != blank -%}<option value="{{ w | escape }}">{{ w | escape }}</option>{%- endif -%}
+                {%- endfor -%}
+                <option value="Not sure — recommend one">Not sure — recommend one</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="CF-size">Approximate size</label>
+              <input id="CF-size" type="text" name="contact[Size]" placeholder="e.g. 36&quot; W x 10&quot; D">
+            </div>
+          </div>
+
+          <div class="field-row">
+            <div class="field">
+              <label for="CF-budget">Budget</label>
+              <select id="CF-budget" name="contact[Budget]">
+                {%- assign budgets = section.settings.budgets | newline_to_br | split: '<br />' -%}
+                {%- for b in budgets -%}
+                  {%- assign bb = b | strip -%}
+                  {%- if bb != blank -%}<option value="{{ bb | escape }}">{{ bb | escape }}</option>{%- endif -%}
+                {%- endfor -%}
+              </select>
+            </div>
+            <div class="field">
+              <label for="CF-date">Needed by <span class="optional">(optional)</span></label>
+              <input id="CF-date" type="date" name="contact[Needed by]">
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="CF-details">Tell us about it</label>
+            <textarea id="CF-details" name="contact[body]" rows="5" required placeholder="Where will it go? Any finish, edge style or engraving in mind? Links to inspiration photos are welcome.">{{ form.body }}</textarea>
+          </div>
+
+          <button type="submit" class="button button--large button--full">Send request</button>
+          <p class="form-note">{{ section.settings.form_note | escape }}</p>
+        {%- endif -%}
+      {%- endform -%}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Commission request",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Small text above title", "default": "Custom orders" },
+    { "type": "text", "id": "form_heading", "label": "Form heading", "default": "Tell us what you're picturing" },
+    { "type": "textarea", "id": "piece_types", "label": "Piece types (one per line)", "default": "Live-edge floating shelves\nCutting / charcuterie board\nDining or coffee table\nMantel\nDesk or workbench\nSign or engraved piece" },
+    { "type": "textarea", "id": "wood_types", "label": "Wood options (one per line)", "default": "Walnut\nWhite oak\nMaple\nCherry\nAsh\nReclaimed" },
+    { "type": "textarea", "id": "budgets", "label": "Budget ranges (one per line)", "default": "Under $150\n$150 – $400\n$400 – $1,000\n$1,000+\nNot sure yet" },
+    { "type": "text", "id": "form_note", "label": "Note under button", "default": "We reply within 2 business days with questions or a quote. No payment until you approve the design." },
+    { "type": "text", "id": "success_text", "label": "Success message", "default": "We'll look it over and get back to you within 2 business days with questions or a quote." }
+  ],
+  "blocks": [
+    {
+      "type": "step",
+      "name": "Step",
+      "settings": [
+        { "type": "text", "id": "title", "label": "Title", "default": "Send your idea" },
+        { "type": "text", "id": "text", "label": "Text", "default": "Share the size, wood and style you have in mind." }
+      ]
+    }
+  ],
+  "max_blocks": 5
+}
+{% endschema %}

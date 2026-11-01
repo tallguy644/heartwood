@@ -1,0 +1,68 @@
+<footer class="site-footer color-dark">
+  <div class="page-width site-footer__grid">
+    <div class="site-footer__about">
+      {%- if section.settings.about_heading != blank -%}
+        <h2 class="h4">{{ section.settings.about_heading | escape }}</h2>
+      {%- endif -%}
+      <div class="rte">{{ section.settings.about_text }}</div>
+      {% render 'social-links' %}
+    </div>
+
+    {%- if linklists[section.settings.menu].links.size > 0 -%}
+      <nav class="site-footer__menu" aria-label="Footer">
+        <h2 class="h4">Explore</h2>
+        <ul>
+          {%- for link in linklists[section.settings.menu].links -%}
+            <li><a href="{{ link.url }}">{{ link.title | escape }}</a></li>
+          {%- endfor -%}
+        </ul>
+      </nav>
+    {%- endif -%}
+
+    {%- if section.settings.show_newsletter -%}
+      <div class="site-footer__newsletter">
+        <h2 class="h4">{{ section.settings.newsletter_heading | escape }}</h2>
+        <p>{{ section.settings.newsletter_text | escape }}</p>
+        {%- form 'customer', class: 'newsletter-form' -%}
+          <input type="hidden" name="contact[tags]" value="newsletter">
+          {%- if form.posted_successfully? -%}
+            <p class="form-message form-message--success">Thanks for subscribing.</p>
+          {%- else -%}
+            <div class="newsletter-form__row">
+              <label for="NewsletterEmail" class="visually-hidden">Email</label>
+              <input id="NewsletterEmail" type="email" name="contact[email]" placeholder="Email address" autocomplete="email" required>
+              <button type="submit" class="button">Subscribe</button>
+            </div>
+            {%- if form.errors -%}<p class="form-message form-message--error">{{ form.errors | default_errors }}</p>{%- endif -%}
+          {%- endif -%}
+        {%- endform -%}
+      </div>
+    {%- endif -%}
+  </div>
+
+  <div class="page-width site-footer__bottom">
+    <p>&copy; {{ 'now' | date: '%Y' }} {{ shop.name | link_to: routes.root_url }}</p>
+    {%- if section.settings.show_payment_icons -%}
+      <ul class="payment-icons" aria-label="Payment methods">
+        {%- for type in shop.enabled_payment_types -%}
+          <li>{{ type | payment_type_svg_tag: class: 'payment-icon' }}</li>
+        {%- endfor -%}
+      </ul>
+    {%- endif -%}
+  </div>
+</footer>
+
+{% schema %}
+{
+  "name": "Footer",
+  "settings": [
+    { "type": "text", "id": "about_heading", "label": "About heading", "default": "From our shop to your home" },
+    { "type": "richtext", "id": "about_text", "label": "About text", "default": "<p>Furniture, boards and heirlooms built one at a time from hardwoods we pick by hand.</p>" },
+    { "type": "link_list", "id": "menu", "label": "Menu", "default": "footer" },
+    { "type": "checkbox", "id": "show_newsletter", "label": "Show newsletter signup", "default": true },
+    { "type": "text", "id": "newsletter_heading", "label": "Newsletter heading", "default": "Fresh off the bench" },
+    { "type": "text", "id": "newsletter_text", "label": "Newsletter text", "default": "Get first look at new pieces before they're listed." },
+    { "type": "checkbox", "id": "show_payment_icons", "label": "Show payment icons", "default": true }
+  ]
+}
+{% endschema %}

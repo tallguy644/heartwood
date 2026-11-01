@@ -1,0 +1,7 @@
+{
+  "sections": {
+    "main": { "type": "main-collection", "settings": {} },
+    "commission": { "type": "commission-cta", "settings": {} }
+  },
+  "order": ["main", "commission"]
+}

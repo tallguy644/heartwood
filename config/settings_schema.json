@@ -1,0 +1,58 @@
+[
+  {
+    "name": "theme_info",
+    "theme_name": "Heartwood",
+    "theme_version": "1.0.0",
+    "theme_author": "Desert Circuit",
+    "theme_documentation_url": "https://github.com/tallguy644/heartwood-theme",
+    "theme_support_url": "https://github.com/tallguy644/heartwood-theme/issues"
+  },
+  {
+    "name": "Colors",
+    "settings": [
+      { "type": "color", "id": "color_background", "label": "Background", "default": "#F6EFE4" },
+      { "type": "color", "id": "color_background_alt", "label": "Alternate background", "default": "#EADBC5" },
+      { "type": "color", "id": "color_text", "label": "Text", "default": "#2E2118" },
+      { "type": "color", "id": "color_accent", "label": "Accent (buttons, links)", "default": "#9A4F25" },
+      { "type": "color", "id": "color_accent_contrast", "label": "Text on accent", "default": "#FFF8EE" },
+      { "type": "color", "id": "color_dark", "label": "Dark section background", "default": "#3B2A1E" },
+      { "type": "color", "id": "color_dark_text", "label": "Text on dark sections", "default": "#F3E6D3" }
+    ]
+  },
+  {
+    "name": "Typography",
+    "settings": [
+      { "type": "font_picker", "id": "type_heading_font", "label": "Headings", "default": "playfair_display_n7" },
+      { "type": "font_picker", "id": "type_body_font", "label": "Body", "default": "lato_n4" }
+    ]
+  },
+  {
+    "name": "Layout",
+    "settings": [
+      { "type": "range", "id": "page_width", "label": "Page width", "min": 1000, "max": 1600, "step": 50, "unit": "px", "default": 1250 },
+      { "type": "range", "id": "corner_radius", "label": "Corner radius", "min": 0, "max": 16, "step": 2, "unit": "px", "default": 4 }
+    ]
+  },
+  {
+    "name": "Favicon",
+    "settings": [
+      { "type": "image_picker", "id": "favicon", "label": "Favicon image", "info": "32 x 32px .png recommended" }
+    ]
+  },
+  {
+    "name": "Social media",
+    "settings": [
+      { "type": "text", "id": "social_instagram", "label": "Instagram URL", "info": "https://instagram.com/yourshop" },
+      { "type": "text", "id": "social_facebook", "label": "Facebook URL" },
+      { "type": "text", "id": "social_pinterest", "label": "Pinterest URL" },
+      { "type": "text", "id": "social_youtube", "label": "YouTube URL" },
+      { "type": "text", "id": "social_tiktok", "label": "TikTok URL" }
+    ]
+  },
+  {
+    "name": "Commissions",
+    "settings": [
+      { "type": "url", "id": "commission_page", "label": "Commission request page", "info": "Create a page using the 'page.commission' template, then pick it here. Used by 'Request a custom piece' buttons." }
+    ]
+  }
+]

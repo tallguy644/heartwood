@@ -1,0 +1,30 @@
+{%- paginate blog.articles by 9 -%}
+<section class="section">
+  <div class="page-width">
+    <header class="page-header"><h1>{{ blog.title | escape }}</h1></header>
+    <div class="article-grid">
+      {%- for article in blog.articles -%}
+        <article class="article-card">
+          <a href="{{ article.url }}">
+            <div class="article-card__media">
+              {%- if article.image -%}
+                {{ article.image | image_url: width: 900 | image_tag: loading: 'lazy', sizes: '(min-width: 750px) 33vw, 100vw', widths: '450, 650, 900', alt: article.image.alt | default: article.title }}
+              {%- else -%}
+                {{ 'image' | placeholder_svg_tag: 'placeholder-svg' }}
+              {%- endif -%}
+            </div>
+            <p class="eyebrow">{{ article.published_at | date: '%B %-d, %Y' }}</p>
+            <h2 class="h4">{{ article.title | escape }}</h2>
+            <p>{{ article.excerpt_or_content | strip_html | truncatewords: 26 }}</p>
+          </a>
+        </article>
+      {%- endfor -%}
+    </div>
+    {% render 'pagination', paginate: paginate %}
+  </div>
+</section>
+{%- endpaginate -%}
+
+{% schema %}
+{ "name": "Blog" }
+{% endschema %}

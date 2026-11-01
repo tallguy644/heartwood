@@ -1,0 +1,8 @@
+{
+  "sections": {
+    "main": { "type": "main-product", "settings": {} },
+    "related": { "type": "featured-collection", "settings": { "eyebrow": "", "heading": "You might also like", "limit": 4, "alt_background": true } },
+    "commission": { "type": "commission-cta", "settings": {} }
+  },
+  "order": ["main", "related", "commission"]
+}

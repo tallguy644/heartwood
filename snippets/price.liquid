@@ -1,0 +1,17 @@
+{%- comment -%}
+  Accepts: product (object), variant (optional)
+{%- endcomment -%}
+{%- liquid
+  assign target = variant | default: product.selected_or_first_available_variant
+  assign show_from = false
+  if variant == blank and product.price_varies
+    assign show_from = true
+  endif
+-%}
+<p class="price{% if target.compare_at_price > target.price %} price--on-sale{% endif %}" data-price>
+  {%- if show_from -%}From {% endif -%}
+  <span class="price__current">{{ target.price | money }}</span>
+  {%- if target.compare_at_price > target.price -%}
+    <s class="price__compare">{{ target.compare_at_price | money }}</s>
+  {%- endif -%}
+</p>

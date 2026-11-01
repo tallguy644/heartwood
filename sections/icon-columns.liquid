@@ -1,0 +1,67 @@
+<section class="section{% if section.settings.dark %} color-dark{% elsif section.settings.alt_background %} color-alt{% endif %}">
+  <div class="page-width">
+    {%- if section.settings.heading != blank -%}
+      <div class="section-header section-header--center">
+        <div>
+          {%- if section.settings.eyebrow != blank -%}<p class="eyebrow">{{ section.settings.eyebrow | escape }}</p>{%- endif -%}
+          <h2>{{ section.settings.heading | escape }}</h2>
+        </div>
+      </div>
+    {%- endif -%}
+    <div class="icon-columns">
+      {%- for block in section.blocks -%}
+        <div class="icon-columns__item" {{ block.shopify_attributes }}>
+          {%- if section.settings.numbered -%}
+            <span class="icon-columns__number">{{ forloop.index | prepend: '0' | slice: -2, 2 }}</span>
+          {%- else -%}
+            {% render 'icon', icon: block.settings.icon %}
+          {%- endif -%}
+          <h3 class="h4">{{ block.settings.title | escape }}</h3>
+          <div class="rte">{{ block.settings.text }}</div>
+        </div>
+      {%- endfor -%}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Icon columns",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Small text above heading" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Why it's made to last" },
+    { "type": "checkbox", "id": "numbered", "label": "Show step numbers instead of icons", "default": false },
+    { "type": "checkbox", "id": "alt_background", "label": "Use alternate background", "default": false },
+    { "type": "checkbox", "id": "dark", "label": "Use dark background", "default": false }
+  ],
+  "blocks": [
+    {
+      "type": "column",
+      "name": "Column",
+      "settings": [
+        { "type": "select", "id": "icon", "label": "Icon", "options": [
+          { "value": "tree", "label": "Tree" },
+          { "value": "saw", "label": "Saw" },
+          { "value": "hand", "label": "Hand" },
+          { "value": "truck", "label": "Truck" },
+          { "value": "leaf", "label": "Leaf" },
+          { "value": "ruler", "label": "Ruler" }
+        ], "default": "tree" },
+        { "type": "text", "id": "title", "label": "Title", "default": "Solid hardwood" },
+        { "type": "richtext", "id": "text", "label": "Text", "default": "<p>No veneers or particleboard — just real wood, chosen board by board.</p>" }
+      ]
+    }
+  ],
+  "max_blocks": 6,
+  "presets": [
+    {
+      "name": "Icon columns",
+      "blocks": [
+        { "type": "column", "settings": { "icon": "tree", "title": "Solid hardwood", "text": "<p>No veneers or particleboard — just real wood, chosen board by board.</p>" } },
+        { "type": "column", "settings": { "icon": "hand", "title": "Made by hand", "text": "<p>Every joint is cut and every surface is finished in our own shop.</p>" } },
+        { "type": "column", "settings": { "icon": "leaf", "title": "Food-safe finishes", "text": "<p>Oils and waxes that are safe for your kitchen and easy to refresh.</p>" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

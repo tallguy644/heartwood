@@ -1,0 +1,21 @@
+{
+  "type": "header",
+  "name": "Header group",
+  "sections": {
+    "announcement": {
+      "type": "announcement-bar",
+      "settings": {
+        "text": "Every piece handmade — custom orders welcome",
+        "link": ""
+      }
+    },
+    "header": {
+      "type": "header",
+      "settings": {
+        "menu": "main-menu",
+        "show_commission_button": true
+      }
+    }
+  },
+  "order": ["announcement", "header"]
+}

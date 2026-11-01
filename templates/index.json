@@ -1,0 +1,81 @@
+{
+  "sections": {
+    "hero": {
+      "type": "hero",
+      "settings": {
+        "layout": "split",
+        "height": "large",
+        "eyebrow": "Live-edge · handcrafted · one of a kind",
+        "heading": "Wood with a story, built to hold yours.",
+        "text": "<p>Live-edge shelves, boards and furniture cut from real slabs — each one keeping the natural edge of the tree it came from.</p>",
+        "button_label": "Shop the collection",
+        "show_commission_button": true
+      }
+    },
+    "featured": {
+      "type": "featured-collection",
+      "settings": {
+        "eyebrow": "Fresh off the bench",
+        "heading": "Featured pieces",
+        "limit": 4,
+        "columns": "4"
+      }
+    },
+    "values": {
+      "type": "icon-columns",
+      "blocks": {
+        "v1": { "type": "column", "settings": { "icon": "tree", "title": "Real slabs, real edges", "text": "<p>We keep the natural live edge of every board, so no two pieces look alike.</p>" } },
+        "v2": { "type": "column", "settings": { "icon": "hand", "title": "Made by hand", "text": "<p>Cut, sanded and finished one at a time in our own shop — never mass-produced.</p>" } },
+        "v3": { "type": "column", "settings": { "icon": "ruler", "title": "Sized to your space", "text": "<p>Need a different length or depth? Every design can be built to order.</p>" } }
+      },
+      "block_order": ["v1", "v2", "v3"],
+      "settings": {
+        "eyebrow": "",
+        "heading": "Why it's made to last",
+        "alt_background": true
+      }
+    },
+    "categories": {
+      "type": "collection-list",
+      "blocks": {
+        "c1": { "type": "collection", "settings": {} },
+        "c2": { "type": "collection", "settings": {} },
+        "c3": { "type": "collection", "settings": {} }
+      },
+      "block_order": ["c1", "c2", "c3"],
+      "settings": { "heading": "Shop by category", "alt_background": false }
+    },
+    "maker": {
+      "type": "image-with-text",
+      "settings": {
+        "image_right": true,
+        "eyebrow": "Meet the maker",
+        "heading": "Sawdust, patience and a lot of coffee",
+        "text": "<p>Tell your story here — how you got started, what you love to build, and what makes your work different. Customers buy handmade from people, so let them meet you.</p>",
+        "button_label": "",
+        "alt_background": true
+      }
+    },
+    "process": {
+      "type": "icon-columns",
+      "blocks": {
+        "p1": { "type": "column", "settings": { "icon": "tree", "title": "Pick the slab", "text": "<p>We choose each board for its grain, color and edge.</p>" } },
+        "p2": { "type": "column", "settings": { "icon": "saw", "title": "Cut & flatten", "text": "<p>Milled flat and square while the live edge stays untouched.</p>" } },
+        "p3": { "type": "column", "settings": { "icon": "leaf", "title": "Hand finish", "text": "<p>Sanded smooth and sealed with durable, low-VOC finishes.</p>" } },
+        "p4": { "type": "column", "settings": { "icon": "truck", "title": "Ship with care", "text": "<p>Wrapped by hand with hidden mounting hardware included.</p>" } }
+      },
+      "block_order": ["p1", "p2", "p3", "p4"],
+      "settings": { "heading": "From tree to your wall", "numbered": true, "dark": false }
+    },
+    "commission": {
+      "type": "commission-cta",
+      "settings": {
+        "eyebrow": "Custom work",
+        "heading": "Have something in mind? Let's build it.",
+        "text": "<p>Shelves for an awkward wall, a table sized to your room, a board with your family name — tell us what you're picturing and we'll quote it.</p>",
+        "button_label": "Start a custom order"
+      }
+    }
+  },
+  "order": ["hero", "featured", "values", "categories", "maker", "process", "commission"]
+}

@@ -1,0 +1,154 @@
+{%- liquid
+  assign current_variant = product.selected_or_first_available_variant
+  assign commission_url = settings.commission_page | default: '/pages/commissions'
+  assign specs = product.metafields.custom
+-%}
+<section class="section product" data-product>
+  <div class="page-width product__grid">
+    <div class="product__media">
+      {%- if product.media.size > 0 -%}
+        <div class="product__main-media" data-main-media>
+          {%- for media in product.media -%}
+            <div class="product__media-item{% if forloop.first %} is-active{% endif %}" data-media-id="{{ media.id }}">
+              {%- case media.media_type -%}
+                {%- when 'image' -%}
+                  {%- if forloop.first -%}{%- assign img_loading = 'eager' -%}{%- else -%}{%- assign img_loading = 'lazy' -%}{%- endif -%}
+                  {{ media | image_url: width: 1600 | image_tag:
+                    loading: img_loading,
+                    sizes: '(min-width: 990px) 55vw, 100vw',
+                    widths: '600, 900, 1200, 1600',
+                    alt: media.alt | default: product.title
+                  }}
+                {%- else -%}
+                  {{ media | media_tag: image_size: '1600x' }}
+              {%- endcase -%}
+            </div>
+          {%- endfor -%}
+        </div>
+        {%- if product.media.size > 1 -%}
+          <ul class="product__thumbs" aria-label="Product images">
+            {%- for media in product.media -%}
+              <li>
+                <button type="button" class="product__thumb{% if forloop.first %} is-active{% endif %}" data-thumb="{{ media.id }}" aria-label="Show image {{ forloop.index }}">
+                  {{ media.preview_image | image_url: width: 200 | image_tag: loading: 'lazy', alt: '' }}
+                </button>
+              </li>
+            {%- endfor -%}
+          </ul>
+        {%- endif -%}
+      {%- else -%}
+        {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg' }}
+      {%- endif -%}
+    </div>
+
+    <div class="product__info">
+      {%- if product.vendor != blank and section.settings.show_vendor -%}
+        <p class="eyebrow">{{ product.vendor | escape }}</p>
+      {%- endif -%}
+      <h1 class="product__title">{{ product.title | escape }}</h1>
+      <div data-price-wrapper>{% render 'price', product: product, variant: current_variant %}</div>
+
+      {%- if product.tags contains 'one-of-a-kind' -%}
+        <p class="product__note">One of a kind — the grain on this piece won't be repeated.</p>
+      {%- elsif specs.lead_time != blank -%}
+        <p class="product__note">Made to order · ships in {{ specs.lead_time }}</p>
+      {%- endif -%}
+
+      {%- form 'product', product, class: 'product-form', data-product-form: '' -%}
+        <input type="hidden" name="id" value="{{ current_variant.id }}" data-variant-id>
+
+        {%- unless product.has_only_default_variant -%}
+          {%- for option in product.options_with_values -%}
+            <fieldset class="product-form__option">
+              <legend>{{ option.name | escape }}</legend>
+              <div class="pill-group">
+                {%- for value in option.values -%}
+                  <input type="radio" class="visually-hidden" id="Option-{{ section.id }}-{{ forloop.parentloop.index0 }}-{{ forloop.index0 }}" name="option{{ option.position }}" value="{{ value | escape }}" data-option-input {% if option.selected_value == value %}checked{% endif %}>
+                  <label class="pill" for="Option-{{ section.id }}-{{ forloop.parentloop.index0 }}-{{ forloop.index0 }}">{{ value | escape }}</label>
+                {%- endfor -%}
+              </div>
+            </fieldset>
+          {%- endfor -%}
+          <script type="application/json" data-variants>{{ product.variants | json }}</script>
+        {%- endunless -%}
+
+        <div class="product-form__buy">
+          <label class="visually-hidden" for="Quantity-{{ section.id }}">Quantity</label>
+          <input type="number" id="Quantity-{{ section.id }}" class="quantity-input" name="quantity" value="1" min="1" {% if product.tags contains 'one-of-a-kind' %}max="1"{% endif %}>
+          <button type="submit" class="button button--large button--full" data-add-button {% unless current_variant.available %}disabled{% endunless %}>
+            {%- if current_variant.available -%}Add to cart{%- else -%}Sold out{%- endif -%}
+          </button>
+        </div>
+        {{ form | payment_button }}
+      {%- endform -%}
+
+      <div class="product__description rte">{{ product.description }}</div>
+
+      {%- if specs.wood_species != blank or specs.dimensions != blank or specs.finish != blank -%}
+        <dl class="spec-list">
+          {%- if specs.wood_species != blank -%}<div><dt>Wood</dt><dd>{{ specs.wood_species }}</dd></div>{%- endif -%}
+          {%- if specs.dimensions != blank -%}<div><dt>Dimensions</dt><dd>{{ specs.dimensions }}</dd></div>{%- endif -%}
+          {%- if specs.finish != blank -%}<div><dt>Finish</dt><dd>{{ specs.finish }}</dd></div>{%- endif -%}
+          {%- if specs.lead_time != blank -%}<div><dt>Lead time</dt><dd>{{ specs.lead_time }}</dd></div>{%- endif -%}
+        </dl>
+      {%- endif -%}
+
+      {%- if section.settings.care_text != blank -%}
+        <details class="accordion">
+          <summary>Care &amp; natural variation</summary>
+          <div class="rte">{%- if specs.care != blank -%}{{ specs.care }}{%- else -%}{{ section.settings.care_text }}{%- endif -%}</div>
+        </details>
+      {%- endif -%}
+      {%- if section.settings.shipping_text != blank -%}
+        <details class="accordion">
+          <summary>Shipping &amp; returns</summary>
+          <div class="rte">{{ section.settings.shipping_text }}</div>
+        </details>
+      {%- endif -%}
+
+      {%- if section.settings.show_custom_link -%}
+        <div class="product__custom">
+          <p><strong>Want it in a different size or wood?</strong> We can build a version just for you.</p>
+          <a href="{{ commission_url }}?piece={{ product.title | url_encode }}" class="link-arrow">Request a custom version</a>
+        </div>
+      {%- endif -%}
+    </div>
+  </div>
+</section>
+
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": {{ product.title | json }},
+    "url": {{ request.origin | append: product.url | json }},
+    {%- if product.featured_media -%}
+    "image": [{{ product.featured_media | image_url: width: 1200 | prepend: 'https:' | json }}],
+    {%- endif -%}
+    "description": {{ product.description | strip_html | json }},
+    "brand": { "@type": "Brand", "name": {{ product.vendor | json }} },
+    "offers": [
+      {%- for variant in product.variants -%}
+      {
+        "@type": "Offer",
+        "availability": "http://schema.org/{% if variant.available %}InStock{% else %}OutOfStock{% endif %}",
+        "price": {{ variant.price | divided_by: 100.00 | json }},
+        "priceCurrency": {{ cart.currency.iso_code | json }},
+        "url": {{ request.origin | append: variant.url | json }}
+      }{% unless forloop.last %},{% endunless %}
+      {%- endfor -%}
+    ]
+  }
+</script>
+
+{% schema %}
+{
+  "name": "Product",
+  "settings": [
+    { "type": "checkbox", "id": "show_vendor", "label": "Show vendor", "default": false },
+    { "type": "checkbox", "id": "show_custom_link", "label": "Show 'Request a custom version' link", "default": true },
+    { "type": "richtext", "id": "care_text", "label": "Default care text", "info": "Overridden per product by the custom.care metafield.", "default": "<p>Wipe clean with a damp cloth and dry right away — never soak or put in the dishwasher. Re-oil every few months or whenever the wood looks dry. Because every board is different, grain and color will vary from the photos; that's what makes each piece yours.</p>" },
+    { "type": "richtext", "id": "shipping_text", "label": "Shipping text", "default": "<p>Ready-made pieces ship within 3 business days, carefully wrapped. Custom orders aren't returnable, but we'll make it right if anything arrives damaged.</p>" }
+  ]
+}
+{% endschema %}

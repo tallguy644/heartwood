@@ -1,0 +1,361 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta property="og:title" content="Heartwood — handmade live-edge woodworking">
+<meta property="og:image" content="live-edge-shelves.jpg">
+<style>html{color-scheme:light}body{margin:0}img{max-width:100%}</style>
+<title>Heartwood Shop</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Young+Serif&family=Alegreya+Sans:ital,wght@0,400;0,500;0,700;1,400&family=Alegreya+Sans+SC:wght@500;700&display=swap">
+<style>
+/* Layout: split hero (copy | photo), then alternating warm bands like planks on a wall */
+:root {
+  --bg: #f5ede1;        /* raw maple */
+  --bg-alt: #e8d8c0;    /* sanded oak */
+  --ink: #2b1f16;       /* walnut */
+  --muted: #6e5a48;
+  --accent: #9a4f25;    /* cherry stain */
+  --on-accent: #fff7ec;
+  --dark: #34261b;      /* dark walnut band */
+  --on-dark: #f1e3cf;
+  --line: #d5c3a9;
+  --card: #fbf6ee;
+  --font-display: "Young Serif", Georgia, "Times New Roman", serif;
+  --font-body: "Alegreya Sans", "Gill Sans", "Trebuchet MS", sans-serif;
+  --font-label: "Alegreya Sans SC", "Alegreya Sans", "Gill Sans", sans-serif;
+  --radius: 4px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #1f1812; --bg-alt: #2a2019; --ink: #f0e3d1; --muted: #bba48c;
+    --accent: #d4864f; --on-accent: #1f1209; --dark: #120d09; --on-dark: #eadac4;
+    --line: #43352a; --card: #272019; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #1f1812; --bg-alt: #2a2019; --ink: #f0e3d1; --muted: #bba48c;
+  --accent: #d4864f; --on-accent: #1f1209; --dark: #120d09; --on-dark: #eadac4;
+  --line: #43352a; --card: #272019; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink);
+  font-family: var(--font-body); font-size: 1.0625rem; line-height: 1.6;
+}
+h1, h2, h3 { font-family: var(--font-display); font-weight: 400; line-height: 1.12; margin: 0; text-wrap: balance; }
+p { margin: 0; }
+a { color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+.wrap {
+  max-width: 1180px; margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.band { padding-block: clamp(3rem, 7vw, 5.5rem); }
+.band--alt { background: var(--bg-alt); }
+.band--dark { background: var(--dark); color: var(--on-dark); }
+
+.label { font-family: var(--font-label); font-weight: 700; font-size: 0.85rem; letter-spacing: 0.08em; color: var(--accent); }
+.band--dark .label { color: var(--accent); }
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  padding: 0.85rem 1.5rem; border-radius: var(--radius);
+  border: 1.5px solid var(--accent); background: var(--accent); color: var(--on-accent);
+  font: 700 0.95rem var(--font-body); text-decoration: none; cursor: pointer;
+}
+.btn:hover { filter: brightness(0.92); }
+.btn--line { background: transparent; color: var(--ink); border-color: var(--ink); }
+.btn--line:hover { background: var(--ink); color: var(--bg); filter: none; }
+
+/* preview strip */
+.preview-strip { background: var(--accent); color: var(--on-accent); font-size: 0.9rem; text-align: center; }
+.preview-strip .wrap { padding-block: 0.5rem; }
+
+/* header */
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+header.site {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5;
+  background: var(--bg); border-bottom: 1px solid var(--line);
+}
+header.site .wrap { display: flex; align-items: center; gap: 1.5rem; min-height: 64px; }
+.logo { font-family: var(--font-display); font-size: 1.45rem; text-decoration: none; margin-right: auto; }
+nav.main { display: flex; gap: 1.5rem; font-weight: 500; }
+nav.main a { text-decoration: none; }
+nav.main a:hover { color: var(--accent); }
+.cart { font-weight: 700; text-decoration: none; }
+@media (max-width: 760px) { nav.main { display: none; } header.site .btn { padding: 0.5rem 0.9rem; font-size: 0.85rem; } }
+
+/* hero */
+.hero { display: grid; background: var(--bg); }
+.hero__copy { padding-block: 3rem; display: grid; gap: 1.1rem; align-content: center; }
+.hero h1 { font-size: clamp(2.4rem, 5.5vw, 4.4rem); }
+.hero__lede { font-size: 1.2rem; color: var(--muted); max-width: 32rem; }
+.hero__actions { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 0.5rem; }
+.hero__photo { position: relative; min-height: 320px; }
+.hero__photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.hero__tag {
+  position: absolute; left: 1rem; bottom: 1rem;
+  background: var(--card); color: var(--ink); border-radius: var(--radius);
+  padding: 0.5rem 0.8rem; font-size: 0.9rem; box-shadow: 0 6px 20px rgba(0,0,0,0.18);
+}
+.hero__tag strong { font-family: var(--font-label); letter-spacing: 0.06em; color: var(--accent); margin-right: 0.35rem; }
+@media (min-width: 880px) {
+  .hero { grid-template-columns: 1fr 1fr; min-height: 600px; }
+  .hero__copy { padding-left: max(16px, calc((100vw - 1180px) / 2 + 16px)); padding-right: 3rem; }
+}
+@media (max-width: 879px) {
+  .hero__copy { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+}
+
+/* section heads */
+.head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 1rem; margin-bottom: 2rem; }
+.head h2 { font-size: clamp(1.8rem, 3.2vw, 2.5rem); margin-top: 0.35rem; }
+.more { font-weight: 700; text-decoration: none; }
+.more:hover { color: var(--accent); }
+
+/* products */
+.grid { display: grid; gap: 1.5rem; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); }
+.card { display: grid; gap: 0.6rem; text-decoration: none; }
+.card__img { position: relative; aspect-ratio: 4 / 5; border-radius: var(--radius); overflow: hidden; background: var(--bg-alt); max-width: 100%; }
+.card__img img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
+.card:hover .card__img img { transform: scale(1.04); }
+.card__badge {
+  position: absolute; top: 0.7rem; left: 0.7rem; background: var(--accent); color: var(--on-accent);
+  font-family: var(--font-label); font-weight: 700; font-size: 0.75rem; letter-spacing: 0.06em;
+  padding: 0.25rem 0.55rem; border-radius: var(--radius);
+}
+.card__soon { display: grid; place-items: center; height: 100%; padding: 1.5rem; text-align: center; color: var(--muted); }
+.card__soon svg { width: 56px; height: 56px; stroke: var(--accent); fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; margin: 0 auto 0.6rem; }
+.card h3 { font-family: var(--font-body); font-weight: 700; font-size: 1.05rem; }
+.card__meta { font-size: 0.92rem; color: var(--muted); }
+
+/* why */
+.why { display: grid; gap: 2rem; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+.why h3 { font-size: 1.35rem; margin-bottom: 0.4rem; }
+.why p { color: var(--muted); }
+.why__mark { font-family: var(--font-label); font-weight: 700; letter-spacing: 0.08em; color: var(--accent); font-size: 0.85rem; margin-bottom: 0.5rem; display: block; }
+
+/* process */
+.steps { list-style: none; padding: 0; margin: 0; display: grid; gap: 1.5rem; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); counter-reset: s; }
+.steps li { counter-increment: s; border-top: 2px solid var(--accent); padding-top: 1rem; }
+.steps li::before { content: counter(s); font-family: var(--font-display); font-size: 2.4rem; line-height: 1; color: var(--accent); display: block; margin-bottom: 0.5rem; }
+.steps h3 { font-size: 1.25rem; margin-bottom: 0.3rem; }
+.steps p { color: var(--muted); }
+
+/* spec — shown on the live-edge piece */
+.feature { display: grid; gap: 2.5rem; align-items: center; }
+@media (min-width: 820px) { .feature { grid-template-columns: 1fr 1fr; gap: 4rem; } }
+.feature__img { aspect-ratio: 1; border-radius: var(--radius); overflow: hidden; max-width: 100%; }
+.feature__img img { width: 100%; height: 100%; object-fit: cover; }
+.feature__body { display: grid; gap: 1rem; min-width: 0; }
+.feature h2 { font-size: clamp(1.9rem, 3.4vw, 2.7rem); }
+.specs { margin: 0.5rem 0 0; border-top: 1px solid var(--line); }
+.specs div { display: grid; grid-template-columns: 7.5rem 1fr; gap: 1rem; padding: 0.65rem 0; border-bottom: 1px solid var(--line); }
+.specs dt { font-weight: 700; }
+.specs dd { margin: 0; color: var(--muted); }
+
+/* commission */
+.commission { display: grid; gap: 2.5rem; }
+@media (min-width: 900px) { .commission { grid-template-columns: 0.9fr 1.1fr; gap: 4rem; align-items: start; } }
+.commission__intro { display: grid; gap: 1rem; }
+.commission__intro h2 { font-size: clamp(1.9rem, 3.4vw, 2.7rem); }
+.commission__intro p { opacity: 0.85; max-width: 32rem; }
+form.order {
+  background: var(--card); color: var(--ink); border-radius: calc(var(--radius) * 2);
+  padding: clamp(1.25rem, 4vw, 2rem); display: grid; gap: 1rem;
+}
+.row { display: grid; gap: 1rem; }
+@media (min-width: 560px) { .row { grid-template-columns: 1fr 1fr; } }
+.field { display: grid; gap: 0.3rem; min-width: 0; }
+.field label { font-weight: 700; font-size: 0.92rem; }
+.field input, .field select, .field textarea {
+  width: 100%; font: inherit; color: var(--ink); background: var(--bg);
+  border: 1.5px solid var(--line); border-radius: var(--radius); padding: 0.7rem 0.85rem;
+}
+.field input:focus, .field select:focus, .field textarea:focus { outline: none; border-color: var(--accent); }
+.form-note { font-size: 0.88rem; color: var(--muted); }
+.sent { padding: 0.9rem 1rem; border-radius: var(--radius); background: var(--bg-alt); }
+
+footer.site { background: var(--dark); color: var(--on-dark); font-size: 0.95rem; }
+footer.site .wrap { padding-block: 2.5rem; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem; }
+footer.site p { opacity: 0.8; }
+
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+
+<div class="preview-strip"><div class="wrap">Design preview — products, prices and checkout go live once the theme is installed on Shopify.</div></div>
+
+<header class="site">
+  <div class="wrap">
+    <a class="logo" href="#top">Heartwood</a>
+    <nav class="main" aria-label="Main">
+      <a href="#shop">Shop</a>
+      <a href="#feature">Live-edge shelves</a>
+      <a href="#process">How it's made</a>
+    </nav>
+    <a class="btn btn--line" href="#custom">Custom orders</a>
+    <a class="cart" href="#shop" aria-label="Cart, 0 items">Cart (0)</a>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero">
+    <div class="hero__copy">
+      <p class="label">Live-edge · handcrafted · one of a kind</p>
+      <h1>Wood with a story, built to hold yours.</h1>
+      <p class="hero__lede">Live-edge shelves, boards and furniture cut from real slabs, each one keeping the natural edge of the tree it came from.</p>
+      <div class="hero__actions">
+        <a class="btn" href="#shop">Shop the collection</a>
+        <a class="btn btn--line" href="#custom">Request a custom piece</a>
+      </div>
+    </div>
+    <div class="hero__photo">
+      <img src="live-edge-shelves.jpg" alt="Three live-edge floating shelves mounted on a wall" width="1272" height="1230">
+      <p class="hero__tag"><strong>Made in our shop</strong>Floating shelf set of 3</p>
+    </div>
+  </section>
+
+  <section class="band" id="shop">
+    <div class="wrap">
+      <div class="head">
+        <div><p class="label">Fresh off the bench</p><h2>Featured pieces</h2></div>
+        <a class="more" href="#custom">Need a different size? →</a>
+      </div>
+      <div class="grid">
+        <a class="card" href="#feature">
+          <div class="card__img">
+            <img src="live-edge-shelves.jpg" alt="Live-edge floating shelves" loading="lazy">
+            <span class="card__badge">One of a kind</span>
+          </div>
+          <h3>Live-edge floating shelves</h3>
+          <p class="card__meta">Set of 3 · hidden mounting hardware</p>
+        </a>
+        <div class="card">
+          <div class="card__img"><div class="card__soon">
+            <div><svg viewBox="0 0 48 48" aria-hidden="true"><rect x="8" y="14" width="32" height="22" rx="3"/><circle cx="34" cy="20" r="2"/><path d="M14 28h12"/></svg>Your next listing</div>
+          </div></div>
+          <h3>Cutting &amp; charcuterie boards</h3>
+          <p class="card__meta">Coming soon</p>
+        </div>
+        <div class="card">
+          <div class="card__img"><div class="card__soon">
+            <div><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M6 18h36M10 18v20M38 18v20M6 18l4-6h28l4 6"/></svg>Your next listing</div>
+          </div></div>
+          <h3>Coffee &amp; side tables</h3>
+          <p class="card__meta">Coming soon</p>
+        </div>
+        <div class="card">
+          <div class="card__img"><div class="card__soon">
+            <div><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M4 16h40v6H4zM10 22v14M38 22v14"/></svg>Your next listing</div>
+          </div></div>
+          <h3>Mantels</h3>
+          <p class="card__meta">Coming soon</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band band--alt">
+    <div class="wrap">
+      <div class="head"><div><p class="label">Why it lasts</p><h2>Made the slow way</h2></div></div>
+      <div class="why">
+        <div><span class="why__mark">Real slabs</span><h3>The tree's own edge</h3><p>We keep the natural live edge on every board, so no two pieces look alike.</p></div>
+        <div><span class="why__mark">By hand</span><h3>One at a time</h3><p>Cut, sanded and finished in our own shop. Nothing is mass-produced.</p></div>
+        <div><span class="why__mark">To order</span><h3>Sized to your wall</h3><p>Need a different length or depth? Every design can be built to fit.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band" id="feature">
+    <div class="wrap feature">
+      <div class="feature__img"><img src="live-edge-shelves.jpg" alt="Close view of three live-edge shelves with dark bark edges and light faces" loading="lazy"></div>
+      <div class="feature__body">
+        <p class="label">Signature piece</p>
+        <h2>Live-edge floating shelves</h2>
+        <p>Thick slabs with the bark edge kept and darkened, faces sanded smooth to show the grain. They mount on hidden steel brackets, so each shelf looks like it grows out of the wall.</p>
+        <dl class="specs">
+          <div><dt>Wood</dt><dd>Your choice of species</dd></div>
+          <div><dt>Edge</dt><dd>Natural live edge, hand-darkened</dd></div>
+          <div><dt>Mounting</dt><dd>Hidden floating brackets included</dd></div>
+          <div><dt>Sizes</dt><dd>Built to the length and depth you need</dd></div>
+        </dl>
+        <div><a class="btn" href="#custom">Order a set in your size</a></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band band--alt" id="process">
+    <div class="wrap">
+      <div class="head"><div><p class="label">How it's made</p><h2>From tree to your wall</h2></div></div>
+      <ol class="steps">
+        <li><h3>Pick the slab</h3><p>Each board is chosen for its grain, color and edge.</p></li>
+        <li><h3>Cut &amp; flatten</h3><p>Milled flat and square while the live edge stays untouched.</p></li>
+        <li><h3>Hand finish</h3><p>Sanded smooth and sealed with a durable finish.</p></li>
+        <li><h3>Ship with care</h3><p>Wrapped by hand, with mounting hardware in the box.</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="band band--dark" id="custom">
+    <div class="wrap commission">
+      <div class="commission__intro">
+        <p class="label">Custom orders</p>
+        <h2>Have something in mind? Let's build it.</h2>
+        <p>Shelves for an awkward wall, a table sized to your room, a board with your family name. Tell us what you're picturing and we'll send a quote within 2 business days. No payment until you approve the design.</p>
+      </div>
+      <form class="order" id="order-form" novalidate>
+        <div class="row">
+          <div class="field"><label for="f-name">Name</label><input id="f-name" type="text" autocomplete="name" value="Jordan Example"></div>
+          <div class="field"><label for="f-email">Email</label><input id="f-email" type="email" autocomplete="email" value="jordan@example.com"></div>
+        </div>
+        <div class="row">
+          <div class="field"><label for="f-piece">What would you like built?</label>
+            <select id="f-piece">
+              <option selected>Live-edge floating shelves</option><option>Cutting / charcuterie board</option>
+              <option>Dining or coffee table</option><option>Mantel</option><option>Something else</option>
+            </select></div>
+          <div class="field"><label for="f-wood">Preferred wood</label>
+            <select id="f-wood">
+              <option>Walnut</option><option>White oak</option><option>Maple</option><option>Cherry</option><option selected>Not sure — recommend one</option>
+            </select></div>
+        </div>
+        <div class="row">
+          <div class="field"><label for="f-size">Approximate size</label><input id="f-size" type="text" value='3 shelves, 30" W x 9" D'></div>
+          <div class="field"><label for="f-budget">Budget</label>
+            <select id="f-budget"><option>Under $150</option><option selected>$150 – $400</option><option>$400 – $1,000</option><option>$1,000+</option></select></div>
+        </div>
+        <div class="field"><label for="f-details">Tell us about it</label>
+          <textarea id="f-details" rows="4">Example request: a set like the ones in the photo for a bathroom wall, a bit narrower to fit beside the mirror.</textarea></div>
+        <button class="btn" type="submit">Send request</button>
+        <p class="form-note" id="form-status">This form is filled with an example. On the live store, requests go straight to the shop's email.</p>
+      </form>
+    </div>
+  </section>
+</main>
+
+<footer class="site">
+  <div class="wrap">
+    <p>Heartwood · handmade woodworking</p>
+    <p>Preview of the Heartwood Shopify theme</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById('order-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var s = document.getElementById('form-status');
+    s.textContent = 'Preview only: nothing was sent. Once the store is live, this request goes to the shop owner.';
+    s.className = 'sent';
+  });
+</script>
+</body>
+</html>

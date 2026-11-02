@@ -24,7 +24,10 @@
   function getJson(url) {
     return fetch(url, { cache: 'no-store' }).then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); });
   }
-  (API ? getJson(API + '/api/inventory').catch(() => getJson('data/inventory.json?v=' + Date.now())) : getJson('data/inventory.json?v=' + Date.now()))
+  const getStatic = () => getJson('data/inventory.json?v=' + Date.now());
+  // A brand-new backend has nothing in it yet; keep showing the site's own inventory until the owner imports or publishes.
+  const isBlank = (d) => !d || (!(d.items || []).length && !(d.categories || []).length && !((d.settings || {}).heroHeading));
+  (API ? getJson(API + '/api/inventory').then((d) => (isBlank(d) ? getStatic() : d)).catch(getStatic) : getStatic())
     .then((d) => { data = d; renderAll(); openFromHash(); })
     .catch(() => {
       document.getElementById('grid').innerHTML = '<p class="empty">Pieces could not be loaded right now. Please refresh in a moment.</p>';

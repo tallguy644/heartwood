@@ -45,8 +45,18 @@ a { color: inherit; }
   padding-right: max(16px, env(safe-area-inset-right, 0px));
 }
 .band { padding-block: clamp(3rem, 7vw, 5.5rem); }
-.band--alt { background: var(--bg-alt); }
+.band--alt { background: color-mix(in srgb, var(--bg-alt) 80%, transparent); }
 .band--dark { background: var(--dark); color: var(--on-dark); }
+
+/* Tree-and-name watermark behind the whole shop page. It stays put while the page scrolls. */
+body:not(.admin)::before {
+  content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background-color: var(--ink);
+  -webkit-mask: url("../images/tree-watermark.png") center / min(86vw, 82vh) no-repeat;
+          mask: url("../images/tree-watermark.png") center / min(86vw, 82vh) no-repeat;
+  opacity: 0.075;
+}
+@media (prefers-color-scheme: dark) { body:not(.admin)::before { opacity: 0.09; } }
 
 .label { font-family: var(--font-label); font-weight: 700; font-size: 0.85rem; letter-spacing: 0.08em; color: var(--accent); }
 

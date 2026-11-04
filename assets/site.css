@@ -1,15 +1,15 @@
 /* Tilley Woodworks storefront — split hero, then warm alternating bands like planks on a wall */
 :root {
-  --bg: #f5ede1;
-  --bg-alt: #e8d8c0;
+  --bg: #ececea;
+  --bg-alt: #dddddb;
   --ink: #2b1f16;
   --muted: #6e5a48;
   --accent: #9a4f25;
   --on-accent: #fff7ec;
-  --dark: #34261b;
-  --on-dark: #f1e3cf;
-  --line: #d5c3a9;
-  --card: #fbf6ee;
+  --dark: #2f2f2f;
+  --on-dark: #eeeeec;
+  --line: #cacac8;
+  --card: #f7f7f6;
   --good: #3f6b34;
   --font-display: "Young Serif", Georgia, "Times New Roman", serif;
   --font-body: "Alegreya Sans", "Gill Sans", "Trebuchet MS", sans-serif;
@@ -19,9 +19,9 @@
 }
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #1f1812; --bg-alt: #2a2019; --ink: #f0e3d1; --muted: #bba48c;
-    --accent: #d4864f; --on-accent: #1f1209; --dark: #120d09; --on-dark: #eadac4;
-    --line: #43352a; --card: #272019; --good: #8fbf7a; color-scheme: dark;
+    --bg: #1d1d1d; --bg-alt: #272727; --ink: #f0e3d1; --muted: #bba48c;
+    --accent: #d4864f; --on-accent: #1f1209; --dark: #121212; --on-dark: #e8e8e6;
+    --line: #3b3b3b; --card: #252525; --good: #8fbf7a; color-scheme: dark;
   }
 }
 
@@ -163,7 +163,7 @@ dialog.piece {
   border: 0; border-radius: calc(var(--radius) * 2); background: var(--bg); color: var(--ink);
   box-shadow: 0 30px 80px rgba(0,0,0,0.35);
 }
-dialog.piece::backdrop { background: rgba(20, 12, 6, 0.6); }
+dialog.piece::backdrop { background: rgba(15, 15, 15, 0.6); }
 .piece__inner { display: grid; }
 @media (min-width: 780px) { .piece__inner { grid-template-columns: 1.1fr 1fr; } }
 .piece__gallery { background: var(--bg-alt); }

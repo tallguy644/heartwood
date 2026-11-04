@@ -81,7 +81,7 @@
 
 /* editor dialog */
 dialog.editor { width: min(720px, calc(100vw - 16px)); max-height: calc(100vh - 16px); padding: 0; border: 0; border-radius: 10px; background: var(--bg); color: var(--ink); box-shadow: 0 30px 80px rgba(0,0,0,0.35); }
-dialog.editor::backdrop { background: rgba(20, 12, 6, 0.6); }
+dialog.editor::backdrop { background: rgba(15, 15, 15, 0.6); }
 .editor__form { display: grid; grid-template-rows: auto 1fr auto; max-height: calc(100vh - 16px); }
 .editor__head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1rem 1.25rem; border-bottom: 1px solid var(--line); }
 .editor__head h2 { font-size: 1.5rem; }

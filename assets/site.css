@@ -54,9 +54,9 @@ body:not(.admin)::before {
   background-color: var(--ink);
   -webkit-mask: url("../images/tree-watermark.png") center / min(86vw, 82vh) no-repeat;
           mask: url("../images/tree-watermark.png") center / min(86vw, 82vh) no-repeat;
-  opacity: 0.075;
+  opacity: 0.12;
 }
-@media (prefers-color-scheme: dark) { body:not(.admin)::before { opacity: 0.09; } }
+@media (prefers-color-scheme: dark) { body:not(.admin)::before { opacity: 0.14; } }
 
 .label { font-family: var(--font-label); font-weight: 700; font-size: 0.85rem; letter-spacing: 0.08em; color: var(--accent); }
 

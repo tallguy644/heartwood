@@ -52,8 +52,8 @@ a { color: inherit; }
 body:not(.admin)::before {
   content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
   background-color: var(--ink);
-  -webkit-mask: url("../images/tree-watermark.png") center / min(86vw, 82vh) no-repeat;
-          mask: url("../images/tree-watermark.png") center / min(86vw, 82vh) no-repeat;
+  -webkit-mask: url("../images/tree-watermark.png?v=2") center / min(86vw, 82vh) no-repeat;
+          mask: url("../images/tree-watermark.png?v=2") center / min(86vw, 82vh) no-repeat;
   opacity: 0.12;
 }
 @media (prefers-color-scheme: dark) { body:not(.admin)::before { opacity: 0.14; } }

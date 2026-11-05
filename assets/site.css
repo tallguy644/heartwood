@@ -1,13 +1,13 @@
-/* Tilley Woodworks storefront — split hero, then warm alternating bands like planks on a wall */
+/* Tilley Woodworks storefront — split hero, then alternating grey bands like planks on a wall */
 :root {
   --bg: #f4f4f3;
   --bg-alt: #e7e7e6;
-  --ink: #2b1f16;
-  --muted: #6e5a48;
+  --ink: #222222;
+  --muted: #5f5f5f;
   --accent: #9a4f25;
   --on-accent: #fff7ec;
   --dark: #3a3a3a;
-  --on-dark: #eeeeec;
+  --on-dark: #f0f0f0;
   --line: #d4d4d2;
   --card: #fcfcfb;
   --good: #3f6b34;
@@ -19,8 +19,8 @@
 }
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #2b2b2b; --bg-alt: #353535; --ink: #f0e3d1; --muted: #bba48c;
-    --accent: #d4864f; --on-accent: #1f1209; --dark: #1f1f1f; --on-dark: #e8e8e6;
+    --bg: #2b2b2b; --bg-alt: #353535; --ink: #ececec; --muted: #b4b4b4;
+    --accent: #d4864f; --on-accent: #1f1209; --dark: #1f1f1f; --on-dark: #ececec;
     --line: #4a4a4a; --card: #333333; --good: #8fbf7a; color-scheme: dark;
   }
 }
